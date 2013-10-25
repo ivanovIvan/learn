@@ -8,6 +8,7 @@
  * @author dav
  */
 
+import java.util.ArrayList;
 
 public class ClassXOImplement {
     private byte[][] dash;    // игровое поле 2 - свободная ячейка
@@ -44,6 +45,7 @@ public class ClassXOImplement {
     {
         // процедура пробегает все возможные варианты и возвращает их отсортированными
         // по степени завершенности, самые близкие к завершению вверху
+        ArrayList<IdentRes> rez = new ArrayList<>();
         
     }
 }
