@@ -1,3 +1,5 @@
+package MyPakage;
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -9,6 +11,7 @@
  */
 
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -19,10 +22,10 @@ public class ClassXOImplement {
     private byte compSym;   // символ противника 0 - нолик, 1 - крестик
     private int n;          // количество ячеек
     private IdentRes winner;// победитель
-    private XODraw drawer;  // класс рисования, инициализируется при начале игры
+    private XODrawPrimitive drawer;  // класс рисования, инициализируется при начале игры
     
     
-    public void initialNewGame(int n, Graphics g)
+    public void initialNewGame(int n, Graphics g, Rectangle r)
     {
         // инициализиует поле первоначальными занчениями из полей n
         dash = new byte[n][n];
@@ -33,13 +36,15 @@ public class ClassXOImplement {
         }
         this.n = n;
         winner = null;
-        XODrawPrimitive tempDrawer = null;
+        /*XODrawPrimitive tempDrawerDrawer = new XODrawPrimitive();
         drawer = tempDrawer;
-        tempDrawer = null;
+        tempDrawer = null;*/
+        drawer = new XODrawPrimitive();
         drawer.g    = g;
         drawer.dash = dash;
-        drawer.setAttribut(10, 10, 10, 10, (byte)1);
-        drawer.drawGrid(n);
+        drawer.rectangl = r;
+        drawer.setAttribut(30, 30, 30, 30, (byte)1);
+        drawer.drawGrid();
     }
     
     public void runNextStep()

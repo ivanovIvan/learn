@@ -1,5 +1,8 @@
+package MyPakage;
+
 
 import java.awt.Graphics;
+import java.awt.Rectangle;
 
 /*
  * To change this template, choose Tools | Templates
@@ -16,8 +19,9 @@ abstract class XODraw {
     static protected byte pixelLine;
     static public byte dash[][];
     static public Graphics g;
+    static public Rectangle rectangl;
     
-    static void setAttribut(int pborderLeft,int pborderRight, int pborderTop, int pborderBottom,byte ppixelLine)
+    void setAttribut(int pborderLeft,int pborderRight, int pborderTop, int pborderBottom,byte ppixelLine)
     {
         // устанавливает параметры и перерисовывает объект
         borderLeft  = pborderLeft;
@@ -25,36 +29,36 @@ abstract class XODraw {
         borderTop   = pborderTop;
         borderBottom= pborderBottom;
         pixelLine   = ppixelLine;
-        paint(g,dash);
+        paint();
     }
-    static void drawGrid(int n)
+    void drawGrid()
     {
         // рисуем сетку по количеству симоволо
         
     }
-    static void drawX(Graphics g,int col, int row)
+    void drawX(Graphics g,int col, int row)
     {
         //метод реализует рисование Х
     }
-    static void drawX(Graphics g,int col, int row, boolean first)
+    void drawX(Graphics g,int col, int row, boolean first)
     {
         // метод реализует рисование Х первый раз
         
     }
-    static void drawO(Graphics g,int col, int row)
+    void drawO(Graphics g,int col, int row)
     {
         //метод реализует рисование Х
         
     }
-    static void drawO(Graphics g,int col, int row, boolean first)
+    void drawO(Graphics g,int col, int row, boolean first)
     {
         // метод реализует рисование Х первый раз
         
     }
-    static void paint()
+    void paint()
     {
         // метод выводит таблицу
-        drawGrid(dash.length);
+        drawGrid();
         for (int i=0;i<dash.length;i++)
         {
             for (int j=0;j<dash.length;j++)
