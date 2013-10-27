@@ -8,6 +8,7 @@
  * @author dav
  */
 
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -17,9 +18,11 @@ public class ClassXOImplement {
     private byte mySym;     // символ компьютера 0 - нолик, 1 - крестик
     private byte compSym;   // символ противника 0 - нолик, 1 - крестик
     private int n;          // количество ячеек
-    private IdentRes winner;
+    private IdentRes winner;// победитель
+    private XODraw drawer;  // класс рисования, инициализируется при начале игры
     
-    public void initialNewGame(int n)
+    
+    public void initialNewGame(int n, Graphics g)
     {
         // инициализиует поле первоначальными занчениями из полей n
         dash = new byte[n][n];
@@ -30,6 +33,13 @@ public class ClassXOImplement {
         }
         this.n = n;
         winner = null;
+        XODrawPrimitive tempDrawer = null;
+        drawer = tempDrawer;
+        tempDrawer = null;
+        drawer.g    = g;
+        drawer.dash = dash;
+        drawer.setAttribut(10, 10, 10, 10, (byte)1);
+        drawer.drawGrid(n);
     }
     
     public void runNextStep()
@@ -98,6 +108,7 @@ public class ClassXOImplement {
     public void show()
     {
         // метод выводит массив на экран
+        drawer.paint();
     }
     
     public void setSym(byte mySym, byte compSym)
