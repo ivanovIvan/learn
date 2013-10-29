@@ -15,19 +15,60 @@ import java.awt.Rectangle;
  */
 abstract class XODraw {
     // бордюры
-    static protected int borderLeft,borderRight,borderTop, borderBottom;
+    static protected int borderWidth,borderHeigth;
     static protected byte pixelLine;
     static public byte dash[][];
     static public Graphics g;
     static public Rectangle rectangl;
+    class paramYach 
+    {
+        int x,y,width,heigth;
+    }
     
-    void setAttribut(int pborderLeft,int pborderRight, int pborderTop, int pborderBottom,byte ppixelLine)
+    class coordYach {
+        int col,row;//col - строка; row - колонка
+        
+    }
+    paramYach getParamYach(int col, int row)
+    {
+        // метод возвращает координаты ячейки для переданного номера строки и колонки
+        paramYach rez = new paramYach();
+        int n = dash.length;
+        rez.heigth = (int)(rectangl.height-2*borderHeigth)/n;
+        rez.width = (int)(rectangl.width-2*borderHeigth)/n;
+        // вычислим координаты
+        rez.x = rez.width*col+borderWidth;
+        rez.y = rez.heigth*row+borderHeigth;
+        return rez;
+    }
+    
+    coordYach getCoordYach(int x, int y)
+    {
+        // метод возвращает номер строки и колонки для щелчка мыши
+        int n = dash.length;
+        int heigth = (int)(rectangl.height-2*borderHeigth)/n;
+        int width = (int)(rectangl.width-2*borderHeigth)/n;
+        coordYach rez = null;
+        if (x>=borderWidth&& x<=(width*n+borderWidth)&&y>=borderHeigth&&y<=(heigth*n+borderHeigth))  
+                {
+                    int row = (int)((x-borderWidth)/width);
+                    int col = (int)((y-borderHeigth)/heigth);
+                    if (col<=n && row <=n) 
+                    {
+                        rez = new coordYach();
+                        rez.col = col;
+                        rez.row = row;
+                    }
+                    
+                }
+        return rez;
+    }
+        
+    void setAttribut(int pborderLeft,int pborderRight, byte ppixelLine)
     {
         // устанавливает параметры и перерисовывает объект
-        borderLeft  = pborderLeft;
-        borderRight = pborderRight;
-        borderTop   = pborderTop;
-        borderBottom= pborderBottom;
+        borderWidth  = pborderLeft;
+        borderHeigth = pborderRight;
         pixelLine   = ppixelLine;
         paint();
     }
@@ -36,21 +77,21 @@ abstract class XODraw {
         // рисуем сетку по количеству симоволо
         
     }
-    void drawX(Graphics g,int col, int row)
+    void drawX(int col, int row)
     {
         //метод реализует рисование Х
     }
-    void drawX(Graphics g,int col, int row, boolean first)
+    void drawX(int col, int row, boolean first)
     {
         // метод реализует рисование Х первый раз
         
     }
-    void drawO(Graphics g,int col, int row)
+    void drawO(int col, int row)
     {
         //метод реализует рисование Х
         
     }
-    void drawO(Graphics g,int col, int row, boolean first)
+    void drawO(int col, int row, boolean first)
     {
         // метод реализует рисование Х первый раз
         
@@ -63,8 +104,8 @@ abstract class XODraw {
         {
             for (int j=0;j<dash.length;j++)
             {
-                if (dash[i][j]==0) drawO(g,i, j);
-                else if (dash[i][j]==1) drawX(g,i,j);
+                if (dash[i][j]==0) drawO(i, j);
+                else if (dash[i][j]==1) drawX(i,j);
             }
         }
     }

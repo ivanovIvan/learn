@@ -22,7 +22,7 @@ public class ClassXOImplement {
     private byte compSym;   // символ противника 0 - нолик, 1 - крестик
     private int n;          // количество ячеек
     private IdentRes winner;// победитель
-    private XODrawPrimitive drawer;  // класс рисования, инициализируется при начале игры
+    private XODraw drawer;  // класс рисования, инициализируется при начале игры
     
     
     public void initialNewGame(int n, Graphics g, Rectangle r)
@@ -36,15 +36,25 @@ public class ClassXOImplement {
         }
         this.n = n;
         winner = null;
-        /*XODrawPrimitive tempDrawerDrawer = new XODrawPrimitive();
+        XODrawPrimitive tempDrawer = new XODrawPrimitive();
         drawer = tempDrawer;
-        tempDrawer = null;*/
+        tempDrawer = null;
         drawer = new XODrawPrimitive();
         drawer.g    = g;
+        dash[0][0] = 1;
+        dash[0][1] = 0;
+        dash[0][2] = 1;
         drawer.dash = dash;
         drawer.rectangl = r;
-        drawer.setAttribut(30, 30, 30, 30, (byte)1);
+        drawer.setAttribut(30, 30, (byte)2);
         drawer.drawGrid();
+    }
+    
+    public void clicMouse(int x, int y)
+    {
+        XODraw.coordYach m = drawer.getCoordYach(x, y);
+        if (m==null) System.out.println( "За границей "); 
+        else System.out.println("Номер колонки "+m.row+" номер строки "+m.col);   
     }
     
     public void runNextStep()
@@ -113,7 +123,17 @@ public class ClassXOImplement {
     public void show()
     {
         // метод выводит массив на экран
+        //drawer.g = g;
         drawer.paint();
+    }
+    /**
+     *
+     * @param g
+     */
+    public void setGraphics(Graphics g, Rectangle r)
+    {
+        drawer.g = g;
+        drawer.rectangl = r;
     }
     
     public void setSym(byte mySym, byte compSym)
