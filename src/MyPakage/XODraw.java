@@ -15,11 +15,11 @@ import java.awt.Rectangle;
  */
 abstract class XODraw {
     // бордюры
-    static protected int borderWidth,borderHeigth;
-    static protected byte pixelLine;
-    static public byte dash[][];
-    static public Graphics g;
-    static public Rectangle rectangl;
+    protected int borderWidth,borderHeigth;
+    protected byte pixelLine;
+    public byte dash[][];
+    public Graphics g;
+    public Rectangle rectangl;
     class paramYach 
     {
         int x,y,width,heigth;
@@ -37,8 +37,8 @@ abstract class XODraw {
         rez.heigth = (int)(rectangl.height-2*borderHeigth)/n;
         rez.width = (int)(rectangl.width-2*borderHeigth)/n;
         // вычислим координаты
-        rez.x = rez.width*col+borderWidth;
-        rez.y = rez.heigth*row+borderHeigth;
+        rez.x = rez.width*row+borderWidth;
+        rez.y = rez.heigth*col+borderHeigth;
         return rez;
     }
     
@@ -64,6 +64,11 @@ abstract class XODraw {
         return rez;
     }
         
+    void drawWinner(IdentRes winner)
+    {
+        // отображаем победителя
+        
+    }
     void setAttribut(int pborderLeft,int pborderRight, byte ppixelLine)
     {
         // устанавливает параметры и перерисовывает объект
@@ -107,6 +112,20 @@ abstract class XODraw {
                 if (dash[i][j]==0) drawO(i, j);
                 else if (dash[i][j]==1) drawX(i,j);
             }
+        }
+    }
+    void drawCell(int col, int row, boolean first)
+    {
+        byte i = dash[col][row];
+        if (first)
+            {
+                if (i==1) drawX(col,row,first);
+                else drawO(col,row,first);
+            }
+        else {
+                if (i==1) drawX(col,row);
+                else drawO(col,row);
+            
         }
     }
 }

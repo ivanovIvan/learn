@@ -15,6 +15,50 @@ import java.awt.Graphics;
  * @author dav
  */
 class XODrawPrimitive extends XODraw {
+
+    @Override
+    void drawWinner(IdentRes winner) {
+        //super.drawWinner(winner); //To change body of generated methods, choose Tools | Templates.
+        int n = dash.length;
+        if (winner.type == eTip.diag)
+        {
+            paramYach i1 ;
+            paramYach i2 ;
+            if (winner.num ==(n-1))
+            {
+                i1 = getParamYach(0, n);
+                i2 = getParamYach(n, 0);
+            }
+            else
+            {
+                i1 = getParamYach(0, 0);
+                i2 = getParamYach(n, n);
+            }
+            for (byte l = 0; l<pixelLine;l++)
+            {
+                g.drawLine(i1.x+l, i1.y , i2.x+l, i2.y);
+            }
+        }
+        else if (winner.type == eTip.col)
+        {
+            paramYach i = getParamYach(winner.num, 0);
+            // проведем линию посредине
+            for (byte l=0;l<pixelLine;l++)
+            {
+                g.drawLine(i.x,i.y+(int)(i.heigth/2)+l, i.x+(int)i.width*n, i.y+(int)(i.heigth/2)+l);
+            }
+        }
+        else
+        {
+            paramYach i = getParamYach(0,winner.num);
+            // проведем линию посредине
+            for (byte l=0;l<pixelLine;l++)
+            {
+                g.drawLine(i.x+(int)i.width/2+l,i.y, i.x+(int)i.width/2+l, i.y+(int)(i.heigth*n));
+            }
+        }
+
+    }
     class DrawPrimitiveImplement 
     {
         // класс рисующий примитивы
@@ -118,4 +162,5 @@ class XODrawPrimitive extends XODraw {
         // метод реализует рисование Х первый раз
         drawO(col, row);
     } 
+    
 }

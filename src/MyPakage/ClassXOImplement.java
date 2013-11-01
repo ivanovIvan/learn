@@ -38,23 +38,37 @@ public class ClassXOImplement {
         winner = null;
         XODrawPrimitive tempDrawer = new XODrawPrimitive();
         drawer = tempDrawer;
-        tempDrawer = null;
-        drawer = new XODrawPrimitive();
+        //tempDrawer = null;
+        drawer = tempDrawer;
         drawer.g    = g;
-        dash[0][0] = 1;
+        /*dash[0][0] = 1;
         dash[0][1] = 0;
-        dash[0][2] = 1;
+        dash[0][2] = 1;*/
         drawer.dash = dash;
         drawer.rectangl = r;
         drawer.setAttribut(30, 30, (byte)2);
+        mySym = 1;
+        compSym = 0;
         drawer.drawGrid();
     }
     
     public void clicMouse(int x, int y)
     {
-        XODraw.coordYach m = drawer.getCoordYach(x, y);
-        if (m==null) System.out.println( "За границей "); 
-        else System.out.println("Номер колонки "+m.row+" номер строки "+m.col);   
+        if (winner ==null)
+        {
+            XODraw.coordYach m = drawer.getCoordYach(x, y);
+            if (m!=null) 
+            {
+                byte i = dash[m.col][m.row];
+                if (i==2) {
+                    dash[m.col][m.row] = compSym;
+                    drawer.drawCell(m.col, m.row, true);
+                    runNextStep();
+                    //drawer.dash = dash;
+                }
+            } 
+        }
+        
     }
     
     public void runNextStep()
@@ -72,13 +86,14 @@ public class ClassXOImplement {
         if (!ourList.isEmpty()) ourBestRes  = ourList.get(0);
         if (compBestRes!=null&&compBestRes.stepOfend==0) winner = compBestRes;
         if (winner ==null&& ourBestRes!=null&&ourBestRes.stepOfend==0) winner = ourBestRes;
-        if (winner ==null)
+        if (winner ==null&&(ourBestRes!=null||compBestRes!=null))
         {
+            int tecCol = -1, tecRow=-1;
             // явного победителя нет.. делаем следующий ход
             int minOurStep = (ourBestRes!=null)?ourBestRes.stepOfend:n+1;
             int compOurStep = (compBestRes!=null)?compBestRes.stepOfend:n+1;
             IdentRes currentRes;
-            if (minOurStep<compOurStep)
+            if (minOurStep<=compOurStep)
             {
                 // мы ближе к победи.. двигаем наш крестик
                 currentRes = ourBestRes;
@@ -97,6 +112,8 @@ public class ClassXOImplement {
                     if (dash[currentRes.num][i]==2)  
                     {
                         dash[currentRes.num][i]= mySym;
+                        tecCol = currentRes.num;
+                        tecRow = i;
                         break;
                     }
                 }
@@ -105,25 +122,35 @@ public class ClassXOImplement {
                     if (dash[i][currentRes.num]==2)  
                     {
                         dash[i][currentRes.num]= mySym;
+                        tecCol = i;
+                        tecRow = currentRes.num;
                         break;
                     }
                 }
                 if (currentRes.type == eTip.diag)
                 {
-                    if (dash[Math.abs(currentRes.num-i)][Math.abs(currentRes.num-i)]==2)
+                    if (dash[i][Math.abs(currentRes.num-i)]==2)
                     {
-                        dash[Math.abs(currentRes.num-i)][Math.abs(currentRes.num-i)] = mySym;
+                        dash[i][Math.abs(currentRes.num-i)] = mySym;
+                        tecCol = i;
+                        tecRow = Math.abs(currentRes.num-i);
                         break;
                     }
                 }
             }
+        if (tecCol>=0&&tecRow>=0) drawer.drawCell(tecCol,tecRow,true);
         }
-        show();
+        else
+        {
+            // ничья
+            System.out.println("Ничья");
+        }
     }
     public void show()
     {
         // метод выводит массив на экран
         //drawer.g = g;
+        if (winner!=null) drawer.drawWinner(winner);
         drawer.paint();
     }
     /**
@@ -140,7 +167,7 @@ public class ClassXOImplement {
     {
         // метод устанавливает собственный символ и символ соперника
         this.mySym      = mySym;
-        this.compSym    = mySym;
+        this.compSym    = compSym;
     }
     private ArrayList<IdentRes> getTabLines(byte sym)
     {
@@ -154,9 +181,11 @@ public class ClassXOImplement {
             for (int j=0;j<n;j++)
             {
                 // вначале проверяем строку
-                if ((colCol!=-1)&&(dash[i][j] == 2 || dash[i][j] == sym)) 
-                    {colCol= colCol-1;}
-                    else {break;}
+                if ((colCol!=-1)&&(dash[i][j] == sym ||dash[i][j]==2)) 
+                    { if (dash[i][j]==sym) colCol= colCol-1;}
+                    else {
+                    colCol = -1;
+                    break;}
             }
             // далее добавим в список результаты вычисления
             if (colCol!=-1)
@@ -178,9 +207,11 @@ public class ClassXOImplement {
             {
                 // вначале проверяем строку
                 // далее проверяем колонки
-                if ((colRow!=-1)&&(dash[j][i] == 2 || dash[j][i] == sym)) 
-                    {colRow= colRow-1;}
-                    else {break;}
+                if ((colRow!=-1)&&(dash[j][i] ==sym||dash[j][i]==2)) 
+                    {if (dash[j][i]==sym) colRow--; }
+                    else {
+                    colRow = -1;
+                    break;}
             }
             // далее добавим в список результаты вычисления
             if (colRow!=-1)
@@ -196,9 +227,11 @@ public class ClassXOImplement {
         int diag1 = n, diag2 =n;
         for (int i=0; i<n;i++)
         { 
-            if ((diag1!=-1)&&(dash[i][i] == 2 || dash[i][i] == sym)) diag1--;
+            if ((diag1!=-1)&&(dash[i][i] == 2 || dash[i][i] == sym)) 
+                { if(dash[i][i] == sym) diag1--; }
             else diag1 = -1;
-            if ((diag2!=-1)&&(dash[n-i][n-i] == 2 || dash[n-i][n-i] == sym)) diag2--;
+            if ((diag2!=-1)&&(dash[i][n-i-1] == 2 || dash[i][n-i-1] == sym)) 
+                { if (dash[i][n-i-1] == sym) diag2--; }
             else diag2 = -1;
             if (diag1==-1&& diag2==-1) break;
         }
@@ -206,7 +239,7 @@ public class ClassXOImplement {
                 {
                  IdentRes mObj = new IdentRes();
                  mObj.type   = eTip.diag;
-                 mObj.num    = 1;
+                 mObj.num    = 0;
                  mObj.stepOfend= diag1;
                  rez.add(mObj);
                 }
@@ -214,7 +247,7 @@ public class ClassXOImplement {
                 {
                  IdentRes mObj = new IdentRes();
                  mObj.type   = eTip.diag;
-                 mObj.num    = n;
+                 mObj.num    = n-1;
                  mObj.stepOfend= diag2;
                  rez.add(mObj);
                 }
