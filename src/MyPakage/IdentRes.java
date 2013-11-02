@@ -17,7 +17,7 @@ public class IdentRes implements Comparable<IdentRes> {
     public int num;     // начало элемента, для диагноали 1- слева направо, 2 справо на лево
     public int stepOfend;  // количество шагов до окончания
     //public bool win;        // признак победы
-     
+      
     @Override
     public int compareTo(IdentRes compareObject)
     {
