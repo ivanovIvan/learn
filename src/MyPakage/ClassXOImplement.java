@@ -254,5 +254,9 @@ public class ClassXOImplement {
         Collections.sort(rez);
         return rez;
    }
-    
+   public void test_draw()
+   {
+       drawer.drawX(0, 0, true);
+       //drawer.dash[0][0] = 1;
+   }
 }

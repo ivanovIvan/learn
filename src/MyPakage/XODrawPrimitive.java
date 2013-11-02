@@ -59,19 +59,27 @@ class XODrawPrimitive extends XODraw {
         }
 
     }
-    class DrawPrimitiveImplement 
+    static class DrawPrimitiveImplement 
     {
         // класс рисующий примитивы
-        public void drawLine(Graphics g,int x1, int y1, int x2, int y2, int delay)
+        static public void drawLine(Graphics g,int x1, int y1, int x2, int y2, int delay,byte pixelLine)
         {
             //метода рисующий линию с определенной задержкой
             double deltaX = x2-x1;
             double deltaY = y2-y1;
-            double c = Math.tan(deltaY/deltaX);
-            for (int i = x1+1; i<=x2; i++)
+            double c = (double)deltaY/deltaX;
+            for (int i = 1; i<=deltaX; i++)
             {
                 double y = c*i;
-                g.drawLine(i-1, (int)c*(i-1),i,(int)y);
+                /*int x11 = x1+i-1;
+                int y11 = y1+(int)(c*(i-1));
+                int x21 = x1+i;
+                int y21 = y1+(int)y;*/
+                //g.
+                for (byte l = 0;l<pixelLine; l++)
+                {
+                    g.drawLine(x1+i-1+l, y1+(int)(c*(i-1)),x1+i+l,y1+(int)y);
+                }
                 try {
                     Thread.sleep(delay);
                 } catch(InterruptedException ex) {
@@ -79,6 +87,10 @@ class XODrawPrimitive extends XODraw {
                 }
                 
             }
+        }
+        static public void drawCircle(Graphics g, int leftX, int leftY, int widht, int heigth, int delay, byte pixelLine)
+        {
+            
         }
     }
     @Override
@@ -132,7 +144,26 @@ class XODrawPrimitive extends XODraw {
     void drawX(int col, int row, boolean first)
     {
         // метод реализует рисование Х первый раз
-        drawX(col, row);
+        if (first)
+        {
+            Color tempColor = g.getColor();
+            g.setColor(Color.BLACK);
+            paramYach m = getParamYach(col, row);
+
+//            for (byte l = 0; l <pixelLine+1;l++)
+//            {
+                // слева направо
+                DrawPrimitiveImplement.drawLine(g,m.x+(int)m.width/10, m.y+(int)m.heigth/10,m.x-(int)m.width/10+m.width , m.y-(int)m.heigth/10+m.heigth,mDelay,pixelLine);
+//                g.drawLine(m.x+(int)m.width/10+l, m.y+(int)m.heigth/10,m.x-(int)m.width/10+l+m.width , m.y-(int)m.heigth/10+m.heigth);
+                // справа налево
+                DrawPrimitiveImplement.drawLine(g,m.x+(int)m.width/10, m.y-(int)m.heigth/10+m.heigth,m.x-(int)m.width/10+m.width , m.y+(int)m.heigth/10,mDelay,pixelLine);
+//                g.drawLine(m.x+(int)m.width/10+l, m.y-(int)m.heigth/10+m.heigth,m.x-(int)m.width/10+l+m.width , m.y+(int)m.heigth/10);
+
+  //          }
+            g.setColor(tempColor);
+            
+        }
+        else drawX(col, row);
     }
     @Override
     void drawO(int col, int row)

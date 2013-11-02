@@ -20,6 +20,7 @@ abstract class XODraw {
     public byte dash[][];
     public Graphics g;
     public Rectangle rectangl;
+    protected int mDelay;// задержка в милисекундах
     class paramYach 
     {
         int x,y,width,heigth;
@@ -128,5 +129,10 @@ abstract class XODraw {
             
         }
     }
+
+    public XODraw() {
+        mDelay = 3;
+    }
+    
 }
 
