@@ -120,7 +120,7 @@ abstract class XODraw {
         byte i = dash[col][row];
         if (first)
             {
-                if (i==1) drawX(col,row,first);
+                if (i==1) drawX(col,row);
                 else drawO(col,row,first);
             }
         else {
