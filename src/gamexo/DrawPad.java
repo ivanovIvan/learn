@@ -26,7 +26,10 @@ public class DrawPad extends JComponent implements MouseListener{
     }
     ClassXOImplement mObj;
     
-    public void DrawPad(){
+    /**
+     *
+     */
+    public DrawPad(){
         addMouseListener(this);
     }
     
@@ -36,6 +39,7 @@ public class DrawPad extends JComponent implements MouseListener{
         if (mObj!=null&&e.getButton() == MouseEvent.BUTTON1)
         {
             mObj.clicMouse(e.getX(), e.getY());
+            this.repaint();
         }
     }
     
