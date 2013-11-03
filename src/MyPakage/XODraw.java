@@ -126,7 +126,7 @@ abstract class XODraw {
         else {
                 if (i==1) drawX(col,row);
                 else drawO(col,row);
-            
+             
         }
     }
 
