@@ -4,6 +4,8 @@
  */
 package gamexo;
 
+import MyPakage.ClassXOImplement;
+
 /**
  *
  * @author dav
@@ -26,6 +28,7 @@ public class JFGame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        drawPadOwn = new gamexo.DrawPad();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -61,11 +64,17 @@ public class JFGame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(drawPadOwn, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 279, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(drawPadOwn, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -78,6 +87,9 @@ public class JFGame extends javax.swing.JFrame {
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
+        drawPadOwn.mObj = new ClassXOImplement();
+        drawPadOwn.mObj.initialNewGame(3, drawPadOwn.getGraphics(), drawPadOwn.getBounds());
+        drawPadOwn.repaint();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     /**
@@ -116,6 +128,7 @@ public class JFGame extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private gamexo.DrawPad drawPadOwn;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
