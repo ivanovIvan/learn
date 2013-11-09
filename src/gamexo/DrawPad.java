@@ -38,8 +38,10 @@ public class DrawPad extends JComponent implements MouseListener{
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         if (mObj!=null&&e.getButton() == MouseEvent.BUTTON1)
         {
+            mObj.setGraphics(this.getGraphics(), this.getBounds());
             mObj.clicMouse(e.getX(), e.getY());
             this.repaint();
+            mObj.showMessageWinner(this);
         }
     }
     
