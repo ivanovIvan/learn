@@ -76,6 +76,7 @@ class XODrawPrimitive extends XODraw {
                 int x21 = x1+i;
                 int y21 = y1+(int)y;*/
                 //g.
+                //pixelLine =1;
                 for (byte l = 0;l<pixelLine; l++)
                 {
                     g.drawLine(x1+i-1+l, y1+(int)(c*(i-1)),x1+i+l,y1+(int)y);
@@ -88,9 +89,41 @@ class XODrawPrimitive extends XODraw {
                 
             }
         }
-        static public void drawCircle(Graphics g, int leftX, int leftY, int widht, int heigth, int delay, byte pixelLine)
+        static public void drawCircle(Graphics g, int leftX, int leftY, int width, int heigth, int delay, byte pixelLine)
         {
-            
+            // вначале вычислим центр и радиус окружности
+            int x = leftX+(int)(width/2);
+            int y = leftY+(int)(heigth/2);
+            double radiusWidth = (int)(width/2);
+            double radiusHeigth = (int)(heigth/2);
+            double deltaR      = (radiusHeigth-radiusWidth)/90;
+            // пока упрощаем и рисуем только круг. не овал
+            //pixelLine = 1;
+            double tekRadius;
+            double tekKoef;
+            for (int i = 0;i<360; i++)
+            {
+                for (int l=0;l<pixelLine;l++)
+                {
+                    if ((i>0&&i<90)||(i>180&&i<270)) {
+                        tekKoef = 1;
+                        tekRadius = (radiusWidth+(deltaR*(i%90))*tekKoef);
+                    }
+                    else {
+                        tekKoef =-1;
+                        tekRadius = (radiusHeigth+(deltaR*(i%90))*tekKoef);
+                    }
+                    int deltaX = (int)((tekRadius-l)*Math.cos(Math.toRadians(i)));
+                    int deltaY = (int)((tekRadius-l)*Math.sin(Math.toRadians(i)));
+                    g.drawLine(x+deltaX, y+deltaY,x+deltaX, y+deltaY);
+                    try {
+                        Thread.sleep(delay);
+                    } catch(InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
+                    
+                }
+            }
         }
     }
     @Override
@@ -128,15 +161,17 @@ class XODrawPrimitive extends XODraw {
         /*int colX = mWidth*col+borderWidth;
         int rowY = mHeigth*row+borderHeigth;*/
         paramYach m = getParamYach(col, row);
+        DrawPrimitiveImplement.drawLine(g,m.x+(int)m.width/10, m.y+(int)m.heigth/10,m.x-(int)m.width/10+m.width , m.y-(int)m.heigth/10+m.heigth,0,pixelLine);
+        DrawPrimitiveImplement.drawLine(g,m.x+(int)m.width/10, m.y-(int)m.heigth/10+m.heigth,m.x-(int)m.width/10+m.width , m.y+(int)m.heigth/10,0,pixelLine);
         
-        for (byte l = 0; l <pixelLine+1;l++)
-        {
-            // слева направо
-            g.drawLine(m.x+(int)m.width/10+l, m.y+(int)m.heigth/10,m.x-(int)m.width/10+l+m.width , m.y-(int)m.heigth/10+m.heigth);
-            // справа налево
-            g.drawLine(m.x+(int)m.width/10+l, m.y-(int)m.heigth/10+m.heigth,m.x-(int)m.width/10+l+m.width , m.y+(int)m.heigth/10);
-            
-        }
+//        for (byte l = 0; l <pixelLine+1;l++)
+//        {
+//            // слева направо
+//            g.drawLine(m.x+(int)m.width/10+l, m.y+(int)m.heigth/10,m.x-(int)m.width/10+l+m.width , m.y-(int)m.heigth/10+m.heigth);
+//            // справа налево
+//            g.drawLine(m.x+(int)m.width/10+l, m.y-(int)m.heigth/10+m.heigth,m.x-(int)m.width/10+l+m.width , m.y+(int)m.heigth/10);
+//            
+//        }
         g.setColor(tempColor);
         
     }
@@ -191,7 +226,16 @@ class XODrawPrimitive extends XODraw {
     void drawO(int col, int row, boolean first)
     {
         // метод реализует рисование Х первый раз
-        drawO(col, row);
+        if (first)
+        {
+            Color tempColor = g.getColor();
+            g.setColor(Color.BLACK);
+            paramYach m = getParamYach(col, row);
+            DrawPrimitiveImplement.drawCircle(g, m.x+(int)m.width/10, m.y+(int)m.heigth/10, (int)(m.width*0.8), (int)(m.heigth*0.8), mDelay, pixelLine);
+            g.setColor(tempColor);
+            
+        }
+        else drawO(col, row);
     } 
     
 }

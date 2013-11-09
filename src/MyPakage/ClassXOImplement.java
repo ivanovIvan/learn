@@ -10,10 +10,12 @@ package MyPakage;
  * @author dav
  */
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
+import javax.swing.JOptionPane;
 
 
 public class ClassXOImplement {
@@ -23,7 +25,7 @@ public class ClassXOImplement {
     private int n;          // количество ячеек
     private IdentRes winner;// победитель
     private XODraw drawer;  // класс рисования, инициализируется при начале игры
-    
+    private String messageWinner;
     
     public void initialNewGame(int n, Graphics g, Rectangle r)
     {
@@ -47,9 +49,10 @@ public class ClassXOImplement {
         drawer.dash = dash;
         drawer.rectangl = r;
         drawer.setAttribut(30, 30, (byte)2);
-        mySym = 1;
-        compSym = 0;
+        mySym = 0;
+        compSym = 1;
         drawer.drawGrid();
+        messageWinner = "";
     }
     
     public void clicMouse(int x, int y)
@@ -84,8 +87,12 @@ public class ClassXOImplement {
         
         if (!compList.isEmpty()) compBestRes = compList.get(0);
         if (!ourList.isEmpty()) ourBestRes  = ourList.get(0);
-        if (compBestRes!=null&&compBestRes.stepOfend==0) winner = compBestRes;
-        if (winner ==null&& ourBestRes!=null&&ourBestRes.stepOfend==0) winner = ourBestRes;
+        if (compBestRes!=null&&compBestRes.stepOfend==0) 
+        {
+            winner = compBestRes;
+            messageWinner = "Вы победили";
+        }
+        
         if (winner ==null&&(ourBestRes!=null||compBestRes!=null))
         {
             int tecCol = -1, tecRow=-1;
@@ -142,9 +149,14 @@ public class ClassXOImplement {
         }
         else
         {
-            // ничья
-            System.out.println("Ничья");
+            if (winner ==null) messageWinner = "Ничья";
+            
         }
+        if (winner!=null&&winner.equals(ourBestRes)) {
+            winner = ourBestRes;
+            messageWinner = "Победил компьютер";
+        } 
+        
     }
     public void show()
     {
@@ -260,4 +272,12 @@ public class ClassXOImplement {
        drawer.drawX(0, 0, true);
        //drawer.dash[0][0] = 1;
    }
+   public void showMessageWinner(Component parent) 
+   {
+       if (!messageWinner.isEmpty()){
+           JOptionPane.showMessageDialog(parent, messageWinner);
+           messageWinner = "";
+       }
+   }
+           
 }
