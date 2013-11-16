@@ -90,7 +90,7 @@ public class ClassXOImplement {
         if (compBestRes!=null&&compBestRes.stepOfend==0) 
         {
             winner = compBestRes;
-            messageWinner = "Вы победили";
+            messageWinner = java.util.ResourceBundle.getBundle("MyPakage/mypropertys").getString("messageWinner");
         }
         
         if (winner ==null&&(ourBestRes!=null||compBestRes!=null))
@@ -149,12 +149,12 @@ public class ClassXOImplement {
         }
         else
         {
-            if (winner ==null) messageWinner = "Ничья";
+            if (winner ==null) messageWinner = java.util.ResourceBundle.getBundle("MyPakage/mypropertys").getString("messageDraw");
             
         }
         if (winner!=null&&winner.equals(ourBestRes)) {
             winner = ourBestRes;
-            messageWinner = "Победил компьютер";
+            messageWinner = java.util.ResourceBundle.getBundle("MyPakage/mypropertys").getString("messageLose");
         } 
         
     }
