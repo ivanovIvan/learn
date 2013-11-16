@@ -16,8 +16,8 @@ public class JFGame extends javax.swing.JFrame {
     public class ActionNewGame extends javax.swing.AbstractAction  {
         public ActionNewGame()
         {
-        super("New game my",null);
-        javax.swing.ImageIcon myIcon = new javax.swing.ImageIcon(getClass().getResource("image/iconExit.bmp"));
+        super(java.util.ResourceBundle.getBundle("gamexo/Bundle").getString("JFGame.jMenuItem2.text"),null);
+        javax.swing.ImageIcon myIcon = new javax.swing.ImageIcon(getClass().getResource("image/iconExit.gif"));
         this.putValue(SMALL_ICON, myIcon);
         //this.putValue(ACCELERATOR_KEY, enabled);
         }
@@ -27,10 +27,8 @@ public class JFGame extends javax.swing.JFrame {
             drawPadOwn.mObj = new ClassXOImplement();
             drawPadOwn.mObj.initialNewGame(3, drawPadOwn.getGraphics(), drawPadOwn.getBounds());
             drawPadOwn.repaint();
-            
         }
         // this is sample uses action listener
-        
     }
     /**
      * Creates new form JFGame
@@ -60,9 +58,10 @@ public class JFGame extends javax.swing.JFrame {
 
         jMenuBar1.setName("MainMenu"); // NOI18N
 
-        jMenu2.setText("File");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("gamexo/Bundle"); // NOI18N
+        jMenu2.setText(bundle.getString("JFGame.jMenu2.text")); // NOI18N
 
-        jMenuItem2.setText("New game");
+        jMenuItem2.setText(bundle.getString("JFGame.jMenuItem2.text")); // NOI18N
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem2ActionPerformed(evt);
@@ -72,7 +71,7 @@ public class JFGame extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu2);
 
-        jMenu3.setText("Exit");
+        jMenu3.setText(bundle.getString("JFGame.jMenu3.text")); // NOI18N
         jMenu3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jMenu3MouseClicked(evt);
