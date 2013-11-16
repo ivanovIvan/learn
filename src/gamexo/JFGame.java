@@ -5,18 +5,40 @@
 package gamexo;
 
 import MyPakage.ClassXOImplement;
+import java.awt.event.ActionEvent;
 
 /**
  *
  * @author dav
  */
 public class JFGame extends javax.swing.JFrame {
-
+    ActionNewGame myActionNewGame;
+    public class ActionNewGame extends javax.swing.AbstractAction  {
+        public ActionNewGame()
+        {
+        super("New game my",null);
+        javax.swing.ImageIcon myIcon = new javax.swing.ImageIcon(getClass().getResource("image/iconExit.bmp"));
+        this.putValue(SMALL_ICON, myIcon);
+        //this.putValue(ACCELERATOR_KEY, enabled);
+        }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            drawPadOwn.mObj = new ClassXOImplement();
+            drawPadOwn.mObj.initialNewGame(3, drawPadOwn.getGraphics(), drawPadOwn.getBounds());
+            drawPadOwn.repaint();
+            
+        }
+        // this is sample uses action listener
+        
+    }
     /**
      * Creates new form JFGame
      */
     public JFGame() {
         initComponents();
+        myActionNewGame = new ActionNewGame();
+        jMenuItem2.setAction(myActionNewGame);
     }
 
     /**
@@ -87,9 +109,9 @@ public class JFGame extends javax.swing.JFrame {
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
-        drawPadOwn.mObj = new ClassXOImplement();
-        drawPadOwn.mObj.initialNewGame(3, drawPadOwn.getGraphics(), drawPadOwn.getBounds());
-        drawPadOwn.repaint();
+//        drawPadOwn.mObj = new ClassXOImplement();
+//        drawPadOwn.mObj.initialNewGame(3, drawPadOwn.getGraphics(), drawPadOwn.getBounds());
+//        drawPadOwn.repaint();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     /**
