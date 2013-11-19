@@ -5,6 +5,7 @@
 package gamexo;
 
 import MyPakage.ClassXOImplement;
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 
 /**
@@ -12,13 +13,15 @@ import java.awt.event.ActionEvent;
  * @author dav
  */
 public class JFGame extends javax.swing.JFrame {
+    
+    
     ActionNewGame myActionNewGame;
     public class ActionNewGame extends javax.swing.AbstractAction  {
         public ActionNewGame()
         {
-        super(java.util.ResourceBundle.getBundle("gamexo/Bundle").getString("JFGame.jMenuItem2.text"),null);
-        javax.swing.ImageIcon myIcon = new javax.swing.ImageIcon(getClass().getResource("image/iconExit.gif"));
-        this.putValue(SMALL_ICON, myIcon);
+            super(java.util.ResourceBundle.getBundle("gamexo/Bundle").getString("JFGame.jMenuItem2.text"),null);
+            javax.swing.ImageIcon myIcon = new javax.swing.ImageIcon(getClass().getResource("image/iconExit.gif"));
+            this.putValue(SMALL_ICON, myIcon);
         //this.putValue(ACCELERATOR_KEY, enabled);
         }
         @Override
@@ -52,6 +55,7 @@ public class JFGame extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -68,6 +72,14 @@ public class JFGame extends javax.swing.JFrame {
             }
         });
         jMenu2.add(jMenuItem2);
+
+        jMenuItem1.setText(bundle.getString("textOption")); // NOI18N
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem1);
 
         jMenuBar1.add(jMenu2);
 
@@ -113,6 +125,12 @@ public class JFGame extends javax.swing.JFrame {
 //        drawPadOwn.repaint();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        // TODO add your handling code here:
+        Options fOption = new Options(this,true);
+        fOption.setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -153,6 +171,7 @@ public class JFGame extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     // End of variables declaration//GEN-END:variables
 }
