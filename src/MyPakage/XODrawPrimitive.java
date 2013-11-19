@@ -99,6 +99,27 @@ class XODrawPrimitive extends XODraw {
             double deltaR      = (radiusHeigth-radiusWidth)/90;
             // пока упрощаем и рисуем только круг. не овал
             //pixelLine = 1;
+            // метод слизан из инета
+            double tekRadius;
+            double tekKoef;
+            for (int i = 0;i<360; i++)
+            {
+                for (int l=0;l<pixelLine;l++)
+                {
+                    
+                    int deltaX = (int)((radiusWidth-l)*Math.cos(Math.toRadians(i)));
+                    int deltaY = (int)((radiusHeigth-l)*Math.sin(Math.toRadians(i)));
+                    g.drawLine(x+deltaX, y+deltaY,x+deltaX, y+deltaY);
+                    try {
+                        Thread.sleep(delay);
+                    } catch(InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
+                    
+                }
+            }
+
+            /* самостоятельно разработанны метод
             double tekRadius;
             double tekKoef;
             for (int i = 0;i<360; i++)
@@ -123,7 +144,7 @@ class XODrawPrimitive extends XODraw {
                     }
                     
                 }
-            }
+            }*/
         }
     }
     @Override
@@ -214,7 +235,7 @@ class XODrawPrimitive extends XODraw {
         int rowY = mHeigth*row+borderHeigth;*/
         paramYach m = getParamYach(col, row);
         
-        for (byte l = 0; l <pixelLine+1;l++)
+        for (byte l = 0; l <pixelLine;l++)
         {
             // слева направо
             g.drawOval(m.x+(int)m.width/10+l, m.y+(int)m.heigth/10+l, (int)(m.width*0.8-l*2), (int)(m.heigth*0.8-l*2));
