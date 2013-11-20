@@ -6,6 +6,7 @@ package gamexo;
 
 import java.awt.Image;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 
 /**
@@ -32,7 +33,11 @@ public class Options extends javax.swing.JDialog {
         resizebleIcon(jToggleButton1);
         resizebleIcon(jToggleButton2);
         // необходимо прочитать настройки
-        
+        JFGame myParent = (JFGame)this.getParent();
+        byte mySym = myParent.myOptions.getcompSym();
+        if (mySym==0) jToggleButton1.setSelected(true);
+                else jToggleButton2.setSelected(true);
+        jSpinner1.setValue(myParent.myOptions.getSizeCall());
     }
 
     /**
@@ -44,6 +49,7 @@ public class Options extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
@@ -73,15 +79,17 @@ public class Options extends javax.swing.JDialog {
 
         jLabel2.setText(bundle.getString("textCountCell")); // NOI18N
 
-        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(3, 3, 6, 1));
+        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(3, 3, 7, 1));
 
         jLayeredPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("textChooseFigure"))); // NOI18N
 
+        buttonGroup1.add(jToggleButton2);
         jToggleButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gamexo/image/image_X.gif"))); // NOI18N
         jToggleButton2.setName("shapeX"); // NOI18N
         jToggleButton2.setBounds(20, 30, 70, 70);
         jLayeredPane1.add(jToggleButton2, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
+        buttonGroup1.add(jToggleButton1);
         jToggleButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gamexo/image/image_O.gif"))); // NOI18N
         jToggleButton1.setName("shapeO"); // NOI18N
         jToggleButton1.setBounds(100, 30, 70, 70);
@@ -125,6 +133,27 @@ public class Options extends javax.swing.JDialog {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+        JFGame myParent = (JFGame)this.getParent();
+        // проверим и установим параметры
+        byte mySym = -1;
+        if (jToggleButton1.isSelected()) mySym = 0;
+        else if (jToggleButton2.isSelected()) mySym = 1;
+        //int myVal = (int)jSpinner1.getValue();
+        //int myVali = (myVal).intValue();
+        int sizeCell = (int)jSpinner1.getValue();
+        StringBuffer mError = myParent.myOptions.optionsCorrect(sizeCell, mySym);
+        if (mError.length()!=0) {
+            // покажем ошибку
+            JOptionPane.showMessageDialog(this,
+                mError,
+                java.util.ResourceBundle.getBundle("gamexo/Bundle").getString("testErrorOptions"),
+                JOptionPane.ERROR_MESSAGE);
+        }
+        else {
+            myParent.myOptions.set(sizeCell, mySym);
+            this.dispose();
+        }
+        
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -174,6 +203,7 @@ public class Options extends javax.swing.JDialog {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel2;

@@ -13,7 +13,34 @@ import java.awt.event.ActionEvent;
  * @author dav
  */
 public class JFGame extends javax.swing.JFrame {
+    public class ContainerOptions {
+        private int sizeCall;
+        private byte compSym;
+        public ContainerOptions(){
+            compSym = 1;
+            sizeCall = 3;
+        }
+        public void set(int sizeCall, byte compSym){
+            this.compSym = compSym;
+            this.sizeCall = sizeCall;
+        }
+        public StringBuffer optionsCorrect(int sizeCall, byte mySym){
+            StringBuffer rez = new StringBuffer(40);
+            if (sizeCall<3||sizeCall>6) rez.append("Не корректно указано размер поля. Оно должно быть в пределах 3-6.");
+            if (mySym<0||mySym>1) rez.append("Не верно выбрана фигура.");
+            
+            return rez;
+        }
+        public int getSizeCall(){
+            return sizeCall;
+        }
+        public byte getcompSym(){
+            return compSym;
+        }
+                
+    }
     
+    ContainerOptions myOptions;
     
     ActionNewGame myActionNewGame;
     public class ActionNewGame extends javax.swing.AbstractAction  {
@@ -28,11 +55,15 @@ public class JFGame extends javax.swing.JFrame {
         public void actionPerformed(ActionEvent e) {
             //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             drawPadOwn.mObj = new ClassXOImplement();
-            drawPadOwn.mObj.initialNewGame(3, drawPadOwn.getGraphics(), drawPadOwn.getBounds());
+            drawPadOwn.mObj.setSym(myOptions.compSym);
+            drawPadOwn.mObj.initialNewGame(myOptions.sizeCall, drawPadOwn.getGraphics(), drawPadOwn.getBounds());
             drawPadOwn.repaint();
         }
         // this is sample uses action listener
     }
+    
+       
+    
     /**
      * Creates new form JFGame
      */
@@ -40,6 +71,7 @@ public class JFGame extends javax.swing.JFrame {
         initComponents();
         myActionNewGame = new ActionNewGame();
         jMenuItem2.setAction(myActionNewGame);
+        myOptions = new ContainerOptions();
     }
 
     /**
@@ -128,6 +160,7 @@ public class JFGame extends javax.swing.JFrame {
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
         Options fOption = new Options(this,true);
+        fOption.setLocationRelativeTo(this);
         fOption.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
