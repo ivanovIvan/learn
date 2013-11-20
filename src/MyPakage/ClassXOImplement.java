@@ -49,8 +49,8 @@ public class ClassXOImplement {
         drawer.dash = dash;
         drawer.rectangl = r;
         drawer.setAttribut(30, 30, (byte)2);
-        mySym = 0;
-        compSym = 1;
+//        mySym = 0;
+//        compSym = 1;
         drawer.drawGrid();
         messageWinner = "";
     }
@@ -175,11 +175,11 @@ public class ClassXOImplement {
         drawer.rectangl = r;
     }
     
-    public void setSym(byte mySym, byte compSym)
+    public void setSym(byte compSym)
     {
         // метод устанавливает собственный символ и символ соперника
-        this.mySym      = mySym;
         this.compSym    = compSym;
+        this.mySym      = (byte)(compSym==1?0:1);
     }
     private ArrayList<IdentRes> getTabLines(byte sym)
     {
