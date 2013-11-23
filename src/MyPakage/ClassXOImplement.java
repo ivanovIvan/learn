@@ -15,6 +15,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import javax.swing.JOptionPane;
 
 
@@ -26,6 +27,7 @@ public class ClassXOImplement {
     private IdentRes winner;// победитель
     private XODraw drawer;  // класс рисования, инициализируется при начале игры
     private String messageWinner;
+    private boolean hard;// применяется усложенный алгоритм расчета хода
     
     public void initialNewGame(int n, Graphics g, Rectangle r)
     {
@@ -49,6 +51,7 @@ public class ClassXOImplement {
         drawer.dash = dash;
         drawer.rectangl = r;
         drawer.setAttribut(30, 30, (byte)2);
+        hard = true;
 //        mySym = 0;
 //        compSym = 1;
         drawer.drawGrid();
@@ -72,6 +75,110 @@ public class ClassXOImplement {
             } 
         }
         
+    }
+    private IdentRes getBestOfTheBest(ArrayList<IdentRes> incoming){
+        // функция при усложненном алгоритме из ходов одинаково удаленных от победы выбирает тот, который
+        // перекрывает противнику больше ходов
+        IdentRes rez=null;
+        Iterator<IdentRes> iter = incoming.iterator();
+        IdentRes[] compareEl = new IdentRes[incoming.size()];
+        byte[][] arrayStep = new byte[3][n];
+        int i = 0;
+        int prevousStep = 0;
+        if (iter.hasNext()) {
+            compareEl[i]= iter.next();
+            prevousStep = compareEl[i].stepOfend;
+            rez = compareEl[i];
+            i++;
+        }
+        while (iter.hasNext()){
+            compareEl[i] = iter.next();
+            if (compareEl[i].stepOfend==prevousStep) {
+                i++;
+            }
+            else {
+                i--;
+                break;
+            } 
+        }
+        if (i>1){
+            // с одинаковым шагом больше нуля, неоходимо проводить доп отбор
+            // вначале рассмотрим какие ходы во всех клетках мы можем перекрыть (т.е. строчки, столбцы
+            // и диагонали, где нет наших ходов
+            for (int k=0;k<n;k++){
+                boolean breakCol = false;
+                boolean breakRow = false;
+                for (int l = 0;l<n;l++)
+                {
+                    if (!breakCol&&dash[k][l]==mySym) breakCol = true;
+                    if (!breakRow&&dash[l][k]==mySym) breakRow = true;
+                }
+                arrayStep[0][k] = (byte)(breakCol?0:1);
+                arrayStep[1][k] = (byte)(breakRow?0:1);
+            }
+            // далее диагонали
+            boolean breakLeft = false;
+            boolean breakRight = false;
+            for (int k=0;k<n;k++){
+                if (!breakLeft&&dash[k][k]==mySym) breakLeft = true;
+                if (!breakRight&&dash[k][n-(k+1)]==mySym) breakRight = true;
+            }
+            arrayStep[2][1] = (byte)(breakLeft?0:1);
+            arrayStep[2][2] = (byte)(breakRight?0:1);
+            // далее обходим массив и вычислям самый лучший наш ход
+            int bestChoose = 0;
+            for (int k =0;k<=i;k++){
+                IdentRes temp = compareEl[k];
+                for (int l =0;l<n;l++){
+                    int tekChoose = 0;
+                    if (temp.type==eTip.col){
+                        // обходим строки
+                        if (dash[l][temp.num]==2) {
+                            tekChoose = arrayStep[0][l]+arrayStep[1][temp.num];
+                            // далее рассмотрим диагонили.. принадлежит ли он 
+                            if(l==temp.num) tekChoose = tekChoose+arrayStep[2][1];
+                            if (l==(n-(l+1))) tekChoose = tekChoose+arrayStep[2][2];
+                        }
+                    }
+                    else {
+                        if (temp.type==eTip.row){
+                            // обходим строки
+                            if (dash[temp.num][l]==2) {
+                                tekChoose = arrayStep[0][temp.num]+arrayStep[1][l];
+                                // далее рассмотрим диагонили.. принадлежит ли он 
+                                if(l==temp.num) tekChoose = tekChoose+arrayStep[2][1];
+                                if (l==(n-(l+1))) tekChoose = tekChoose+arrayStep[2][2];
+                            }
+                        }
+                        else {
+                            // диагональ
+                            if (temp.num==0){
+                                // слева направо
+                                if (dash[l][l]==2) {
+                                    tekChoose = arrayStep[0][l]+arrayStep[1][l]+arrayStep[2][1];
+                                    // далее рассмотрим диагонили.. принадлежит ли он 
+                                    if (l==(n-(l+1))) tekChoose = tekChoose+arrayStep[2][2];
+                                }
+                            }
+                            else{
+                                // справа на лево
+                                if (dash[l][n-(l+1)]==2) {
+                                    tekChoose = arrayStep[0][n-(l+1)]+arrayStep[1][l]+arrayStep[2][2];
+                                    // далее рассмотрим диагонили.. принадлежит ли он 
+                                    if (l==l) tekChoose = tekChoose+arrayStep[2][1];
+                                }
+                            }
+                        }
+                    }
+                    if (tekChoose>bestChoose) {
+                        bestChoose = tekChoose;
+                        rez = compareEl[k];
+                        rez.preferredCell = l;
+                    }
+                }
+            }
+        }
+        return rez;
     }
     
     public void runNextStep()
@@ -105,43 +212,76 @@ public class ClassXOImplement {
                 // мы ближе к победи.. двигаем наш крестик
                 currentRes = ourBestRes;
                 if (ourBestRes.stepOfend==1) winner = ourBestRes;
+                else
+                    // если усложненный алгоритм, проверим, возможно следует выбрать наилучший ход из равных к окончанию
+                    if (hard) {
+                        currentRes = getBestOfTheBest(ourList);
+                    }
             }
             else
             {
                 // он ближе к победе. надо помешать
                 currentRes = compBestRes;
+                    // если усложненный алгоритм, проверим, возможно следует выбрать наилучший ход из равных к окончанию
+                    if (hard) {
+                        currentRes = getBestOfTheBest(compList);
+                    }
             }
             // сделать следующий шаг и отрисовать
-            for (int i=0;i<n;i++)
-            {
-                if (currentRes.type == eTip.col)
-                {
-                    if (dash[currentRes.num][i]==2)  
+            if (currentRes.preferredCell>=0){
+                // если есть предпочтительный ход
+                    if (currentRes.type == eTip.col)
                     {
-                        dash[currentRes.num][i]= mySym;
+                        dash[currentRes.num][currentRes.preferredCell]= mySym;
                         tecCol = currentRes.num;
-                        tecRow = i;
-                        break;
+                        tecRow = currentRes.preferredCell;
                     }
-                }
-                if (currentRes.type == eTip.row)
-                {
-                    if (dash[i][currentRes.num]==2)  
+                    if (currentRes.type == eTip.row)
                     {
-                        dash[i][currentRes.num]= mySym;
-                        tecCol = i;
+                        dash[currentRes.preferredCell][currentRes.num]= mySym;
+                        tecCol = currentRes.preferredCell;
                         tecRow = currentRes.num;
-                        break;
+                    }
+                    if (currentRes.type == eTip.diag)
+                    {
+                        dash[currentRes.preferredCell][Math.abs(currentRes.num-currentRes.preferredCell)] = mySym;
+                        tecCol = currentRes.preferredCell;
+                        tecRow = Math.abs(currentRes.num-currentRes.preferredCell);
                     }
                 }
-                if (currentRes.type == eTip.diag)
+                
+            else {
+                for (int i=0;i<n;i++)
                 {
-                    if (dash[i][Math.abs(currentRes.num-i)]==2)
+                    if (currentRes.type == eTip.col)
                     {
-                        dash[i][Math.abs(currentRes.num-i)] = mySym;
-                        tecCol = i;
-                        tecRow = Math.abs(currentRes.num-i);
-                        break;
+                        if (dash[currentRes.num][i]==2)  
+                        {
+                            dash[currentRes.num][i]= mySym;
+                            tecCol = currentRes.num;
+                            tecRow = i;
+                            break;
+                        }
+                    }
+                    if (currentRes.type == eTip.row)
+                    {
+                        if (dash[i][currentRes.num]==2)  
+                        {
+                            dash[i][currentRes.num]= mySym;
+                            tecCol = i;
+                            tecRow = currentRes.num;
+                            break;
+                        }
+                    }
+                    if (currentRes.type == eTip.diag)
+                    {
+                        if (dash[i][Math.abs(currentRes.num-i)]==2)
+                        {
+                            dash[i][Math.abs(currentRes.num-i)] = mySym;
+                            tecCol = i;
+                            tecRow = Math.abs(currentRes.num-i);
+                            break;
+                        }
                     }
                 }
             }
@@ -181,6 +321,7 @@ public class ClassXOImplement {
         this.compSym    = compSym;
         this.mySym      = (byte)(compSym==1?0:1);
     }
+    
     private ArrayList<IdentRes> getTabLines(byte sym)
     {
         // процедура пробегает все возможные варианты и возвращает их отсортированными
@@ -206,6 +347,7 @@ public class ClassXOImplement {
                 mObj.type   = eTip.col;
                 mObj.num    = i;
                 mObj.stepOfend= colCol;
+                mObj.preferredCell = -1;
                 rez.add(mObj);
             }
             
@@ -232,6 +374,7 @@ public class ClassXOImplement {
                 mObj.type   = eTip.row;
                 mObj.num    = i;
                 mObj.stepOfend= colRow;
+                mObj.preferredCell = -1;
                 rez.add(mObj);
             }
         }
@@ -253,6 +396,7 @@ public class ClassXOImplement {
                  mObj.type   = eTip.diag;
                  mObj.num    = 0;
                  mObj.stepOfend= diag1;
+                 mObj.preferredCell = -1;
                  rez.add(mObj);
                 }
         if (diag2!=-1)
@@ -261,6 +405,7 @@ public class ClassXOImplement {
                  mObj.type   = eTip.diag;
                  mObj.num    = n-1;
                  mObj.stepOfend= diag2;
+                 mObj.preferredCell = -1;
                  rez.add(mObj);
                 }
         Collections.sort(rez);
