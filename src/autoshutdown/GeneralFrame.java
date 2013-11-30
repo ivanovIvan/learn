@@ -4,17 +4,86 @@
  */
 package autoshutdown;
 
+import autoshutdown.MyActionFactory.MyAction;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 /**
  *
  * @author dav
  */
 public class GeneralFrame extends javax.swing.JFrame {
+    public int minCount = 0;    // минимальная задержка
+    public int maxCount = 600;  // максимальная задержка
+    public int step     = 5;    // шаг изменения
+    private MyTimer myTimer;
+    MyAction currentAction;
+    
+    // методы устанавливают иконки
+    private void setIcon_NoRun(){
+        
+    }
+    
+    private void setIcon_Pause(){
+        
+    }
+    
+    private void setIcon_Count(int coun){
+        
+    }
+            
+    
+    public class MyTimer {
+        private int tecTime;  // текущее время в минутах
+        private java.util.Timer myTimer;
 
+        class ReminderTask extends java.util.TimerTask {
+            @Override
+            public void run() {
+                if (tecTime==0) 
+                    // выполняем действия
+                {
+                   currentAction.Action_Shutdown();
+                }
+                    else  {
+                        tecTime --;
+                        setIcon_Count(tecTime);
+                    }
+            }            
+        }
+        public void MyTimer() {
+            myTimer = new java.util.Timer();
+        }
+        
+        public void StarTimer(){
+            myTimer.schedule(new ReminderTask(), 1000);
+        }
+        
+        public void StartTimer(int myTecTime){
+            setTecTime(myTecTime);
+            StarTimer();
+        }
+        
+        public void setTecTime(int myTecTime) {
+            tecTime = myTecTime;
+        }
+        
+        public void StpTimer(){
+            myTimer.cancel();
+        }
+    }
     /**
      * Creates new form GeneralFrame
      */
     public GeneralFrame() {
         initComponents();
+        jSlider1.setMinimum(minCount);
+        jSlider1.setMaximum(maxCount);
+        SpinnerNumberModel myModel = (SpinnerNumberModel)mTimeShutDown.getModel();
+        myModel.setMaximum(maxCount);
+        myModel.setMinimum(minCount);
+        myModel.setStepSize(step);
+        mTimeShutDown.setModel(myModel);
+        currentAction = new MyActionFactory().getInstant();
     }
 
     /**
@@ -25,19 +94,58 @@ public class GeneralFrame extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jLabel1 = new javax.swing.JLabel();
+        mTimeShutDown = new javax.swing.JSpinner();
+        jSlider1 = new javax.swing.JSlider();
+        jAction = new javax.swing.JButton();
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("autoshutdown/Bundle"); // NOI18N
+        jLabel1.setText(bundle.getString("JLabelTime")); // NOI18N
+
+        mTimeShutDown.setModel(new javax.swing.SpinnerNumberModel(0, 0, 1, 1));
+        mTimeShutDown.setToolTipText(bundle.getString("JLabelTime")); // NOI18N
+        mTimeShutDown.setName("mTimeShutDown"); // NOI18N
+
+        jSlider1.setMaximum(600);
+        jSlider1.setMinimum(1);
+        jSlider1.setOrientation(javax.swing.JSlider.VERTICAL);
+
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, mTimeShutDown, org.jdesktop.beansbinding.ELProperty.create("${value}"), jSlider1, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+
+        jAction.setText("Запуск");
+        jAction.setName("jAction"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jAction, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(mTimeShutDown)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mTimeShutDown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                .addComponent(jAction)
+                .addContainerGap())
         );
+
+        bindingGroup.bind();
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -53,7 +161,7 @@ public class GeneralFrame extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if (java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("NIMBUS").equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -71,11 +179,17 @@ public class GeneralFrame extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new GeneralFrame().setVisible(true);
             }
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jAction;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JSlider jSlider1;
+    private javax.swing.JSpinner mTimeShutDown;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }
