@@ -4,6 +4,8 @@
  */
 package autoshutdown;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author dav
@@ -19,12 +21,11 @@ public class MyActionFactory {
 
         @Override
         public void Action_SetAutostart(boolean autostart) {
-            
         }
 
         @Override
         public void Action_Shutdown() {
-            
+            System.out.println("Выполнено действие");
         }
         
     }

@@ -148,17 +148,18 @@ public class GeneralFrame extends javax.swing.JFrame {
             {
                 //запускаем заново
                 GeneralFrame.this.myTimer.StartTimer();
-                putValue("NAME",java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_pause"));
-                this.putValue(SMALL_ICON, iconResume);
+                this.putValue("NAME",java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_pause"));
+                this.putValue(SMALL_ICON, iconPause);
                 actionStart.setEnabled(false);
                 setIcon_NoRun();
             }
             else 
             {
                 // ставим на паузу
-                GeneralFrame.this.myTimer.StpTimer();
-                putValue("NAME",java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_resume"));
-                this.putValue(SMALL_ICON, iconPause);
+                GeneralFrame.this.myTimer.StopTimer();
+                this.putValue("NAME",java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_resume"));
+                this.putValue(SMALL_ICON, iconResume);
+                //firePropertyChange("NAME","",this.getValue("NAME"));
                 actionStart.setEnabled(true);
                 setIcon_Pause();
             }
@@ -195,7 +196,8 @@ public class GeneralFrame extends javax.swing.JFrame {
     public class MyTimer {
         private int tecTime;  // текущее время в минутах
         private java.util.Timer myTimer;
-
+        private ReminderTask myTask;
+        private boolean timerIsPaused;
         public MyTimer() {
             myTimer = new java.util.Timer();
         }
@@ -203,21 +205,26 @@ public class GeneralFrame extends javax.swing.JFrame {
         class ReminderTask extends java.util.TimerTask {
             @Override
             public void run() {
-                if (tecTime==0) 
-                    // выполняем действия
-                {
-                   currentAction.Action_Shutdown();
-                }
-                    else  {
-                        tecTime --;
-                        setIcon_Count(tecTime);
+                if (!timerIsPaused) {
+                    if (tecTime==0) 
+                        // выполняем действия
+                    {
+                        StopTimer();
+                        currentAction.Action_Shutdown();
                     }
-            }            
+                        else  {
+                            tecTime --;
+                            setIcon_Count(tecTime);
+                       }
+                }
+           }            
         }
  
         
         public void StartTimer(){
-            myTimer.schedule(new ReminderTask(), 1000);
+            if (myTask==null) myTask = new ReminderTask();
+            if (timerIsPaused) timerIsPaused=false;
+            else myTimer.schedule(myTask,0, 10000);
         }
         
         public void StartTimer(int myTecTime){
@@ -229,8 +236,8 @@ public class GeneralFrame extends javax.swing.JFrame {
             tecTime = myTecTime;
         }
         
-        public void StpTimer(){
-            myTimer.cancel();
+        public void StopTimer(){
+            timerIsPaused = true;
         }
     }
     /**
