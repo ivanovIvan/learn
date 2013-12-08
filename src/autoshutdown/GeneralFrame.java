@@ -11,14 +11,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Paint;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -26,6 +23,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import static javax.swing.Action.NAME;
 import static javax.swing.Action.SMALL_ICON;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
@@ -40,11 +38,11 @@ import javax.swing.SpinnerNumberModel;
 public class GeneralFrame extends javax.swing.JFrame {
     public int minCount = 0;    // минимальная задержка
     public int maxCount = 600;  // максимальная задержка
-    public int step     = 5;    // шаг изменения
+    public int step     = 10;    // шаг изменения
     public int firstCount = 7;  // количество строк в "быстром" запуске
     public MyTimer myTimer;
     public boolean pausa;
-    public int currentTime;
+    //public int currentTime;
     BufferedImage myOwnImage;
     BufferedImage myPauseImage;
     TrayIcon myTrayIcon;
@@ -58,9 +56,14 @@ public class GeneralFrame extends javax.swing.JFrame {
     SimpleAction simpleAction;
     
     public void setCurrentTime(int mCurrentTime){
-        currentTime = mCurrentTime;
+        mTimeShutDown.setValue(mCurrentTime);
+        //currentTime = mCurrentTime;
+        
     }
-    
+    public int getCurrentTime(){
+        return (int)mTimeShutDown.getValue();
+        //return currentTime;
+    }
     // блок работы с действиями
     public ImageIcon getIconFromImage(Image img) {
 //        ImageIcon icon = (ImageIcon)jButton.getIcon();
@@ -75,7 +78,9 @@ public class GeneralFrame extends javax.swing.JFrame {
         public void actionPerformed(ActionEvent e) {
             JMenuItem mMenuItem = (JMenuItem)e.getSource();
             setCurrentTime(Integer.parseInt(mMenuItem.getName()));
-            actionStart.actionPerformed(e);
+            String mLabel = ((JPopupMenu)mMenuItem.getParent()).getLabel();
+            GeneralFrame.this.mTimeShutDown.setValue(getCurrentTime());
+            if (mLabel==null||(!mLabel.equals("WindowsPopup"))) actionStart.actionPerformed(e);
         }
        
     }
@@ -99,7 +104,7 @@ public class GeneralFrame extends javax.swing.JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             GeneralFrame.this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-            GeneralFrame.this.tray.remove(myTrayIcon);
+            //GeneralFrame.this.tray.remove(myTrayIcon);
             System.exit(0);
         }
     }
@@ -116,11 +121,29 @@ public class GeneralFrame extends javax.swing.JFrame {
             }
             this.putValue(SMALL_ICON, myIcon);
         }
+        // процедура для обновления наименования
+        public void refreshName(){
+            StringBuffer myName = new StringBuffer();
+            if (myTimer!=null&&myTimer.getTecTime()!=0) {
+                myName.append(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionReStart"));
+            }
+            else myName.append(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionStart"));
+            if (getCurrentTime()!=0) {
+                myName.append(" (");
+                myName.append(Integer.toString(getCurrentTime()));
+                myName.append(")");
+            }
+            this.putValue(NAME, myName.toString());
+        }
         @Override
         public void actionPerformed(ActionEvent e) {
-            GeneralFrame.this.myTimer.StartTimer(GeneralFrame.this.currentTime);
+            GeneralFrame.this.myTimer.StartTimer(GeneralFrame.this.getCurrentTime());
             actionStart.setEnabled(false);
             actionPause.setEnabled(true);
+            setIcon_Count(getCurrentTime());
+            pausa = false;
+            refreshName();
+            actionPause.refreshName();
         }
     }
     // пауза
@@ -142,28 +165,41 @@ public class GeneralFrame extends javax.swing.JFrame {
             }
             this.putValue(SMALL_ICON, iconPause);
         }
+        public void refreshName(){
+            StringBuffer myName = new StringBuffer();
+            if (pausa) {
+                myName.append(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_resume"));
+                myName.append(" (");
+                myName.append(Integer.toString(myTimer.getTecTime()));
+                myName.append(")");
+            }
+            else myName.append(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_pause"));
+            this.putValue(NAME, myName.toString());
+        }
+        
         @Override
         public void actionPerformed(ActionEvent e) {
             if (GeneralFrame.this.pausa)
             {
                 //запускаем заново
                 GeneralFrame.this.myTimer.StartTimer();
-                this.putValue("NAME",java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_pause"));
+                //this.putValue(NAME,java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_pause"));
                 this.putValue(SMALL_ICON, iconPause);
                 actionStart.setEnabled(false);
-                setIcon_NoRun();
+                setIcon_Count(myTimer.getTecTime());
             }
             else 
             {
                 // ставим на паузу
                 GeneralFrame.this.myTimer.StopTimer();
-                this.putValue("NAME",java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_resume"));
+                //this.putValue(NAME,java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ActionPause_resume"));
                 this.putValue(SMALL_ICON, iconResume);
                 //firePropertyChange("NAME","",this.getValue("NAME"));
                 actionStart.setEnabled(true);
                 setIcon_Pause();
             }
             GeneralFrame.this.pausa = !GeneralFrame.this.pausa;
+            refreshName();
         }
     }
     
@@ -210,7 +246,13 @@ public class GeneralFrame extends javax.swing.JFrame {
                         // выполняем действия
                     {
                         StopTimer();
-                        currentAction.Action_Shutdown();
+                        try {
+                            currentAction.Action_Shutdown();
+                        } catch (RuntimeException ex) {
+                            Logger.getLogger(GeneralFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IOException ex) {
+                            Logger.getLogger(GeneralFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                         else  {
                             tecTime --;
@@ -222,9 +264,12 @@ public class GeneralFrame extends javax.swing.JFrame {
  
         
         public void StartTimer(){
-            if (myTask==null) myTask = new ReminderTask();
+            if (myTask==null) {
+                myTask = new ReminderTask();
+                myTimer.schedule(myTask,60000, 60000);
+            }
             if (timerIsPaused) timerIsPaused=false;
-            else myTimer.schedule(myTask,0, 10000);
+            setIcon_Count(tecTime);
         }
         
         public void StartTimer(int myTecTime){
@@ -239,13 +284,22 @@ public class GeneralFrame extends javax.swing.JFrame {
         public void StopTimer(){
             timerIsPaused = true;
         }
+        public int getTecTime(){
+            return tecTime;
+        }
     }
     /**
      * Creates new form GeneralFrame
      */
     public GeneralFrame() {
-        this.popup = new JPopupMenu();
+        this.popup = new JPopupMenu(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("AppNAme"));
         this.tray = SystemTray.getSystemTray();
+        myOwnImage = new BufferedImage(16,16,java.awt.image.BufferedImage.TYPE_INT_RGB);
+        myListener = new SimpleAction();
+        actionExit = new ActionExit();
+        actionPause = new ActionPause();
+        actionStart = new ActionStart();
+        simpleAction = new SimpleAction();
         initComponents();
         jSlider1.setMinimum(minCount);
         jSlider1.setMaximum(maxCount);
@@ -253,8 +307,10 @@ public class GeneralFrame extends javax.swing.JFrame {
         myModel.setMaximum(maxCount);
         myModel.setMinimum(minCount);
         myModel.setStepSize(step);
-        mTimeShutDown.setModel(myModel);
+        //myModel.setValue(10);        
         currentAction = new MyActionFactory().getInstant();
+        setCurrentTime(10);
+        mTimeShutDown.setModel(myModel);
         if (!SystemTray.isSupported()) {
             JOptionPane.showMessageDialog(this,
             java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("messageNotSupportedSystemTray"),
@@ -264,7 +320,6 @@ public class GeneralFrame extends javax.swing.JFrame {
         }
         else
         {
-            myOwnImage = new BufferedImage(16,16,java.awt.image.BufferedImage.TYPE_INT_RGB);
             try {
                 myOwnImage = ImageIO.read(getClass().getResource("image/ownIcon.png"));
                 myTrayIcon = new TrayIcon(myOwnImage);
@@ -289,11 +344,6 @@ public class GeneralFrame extends javax.swing.JFrame {
             // создаем таймер
             myTimer = new MyTimer();
             // инициализируем меню
-            myListener = new SimpleAction();
-            actionExit = new ActionExit();
-            actionPause = new ActionPause();
-            actionStart = new ActionStart();
-            simpleAction = new SimpleAction();
             actionPause.setEnabled(false);
             popup.add(actionStart);
             popup.add(actionPause);
@@ -309,11 +359,15 @@ public class GeneralFrame extends javax.swing.JFrame {
                 textMenu.append(" ");
                 textMenu.append(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("min"));
                 JMenuItem menuItem = new JMenuItem(textMenu.toString());
+                JMenuItem menuItemP = new JMenuItem(textMenu.toString());
                 textMenu.delete(0, textMenu.length());
                 textMenu.append(time);
                 menuItem.setName(textMenu.toString());
+                menuItemP.setName(textMenu.toString());
                 menuItem.addActionListener(simpleAction);
+                menuItemP.addActionListener(simpleAction);
                 menu.add(menuItem);
+                WindowsPopup.add(menuItemP);// создаем дополнительное всплывающее окно на форме
             }
             //menu.addSeparator();
             popup.add(menu);            
@@ -329,21 +383,22 @@ public class GeneralFrame extends javax.swing.JFrame {
                 public void mouseClicked(MouseEvent  e) {
                     if (e.getButton() == MouseEvent.BUTTON3) {
                     //GeneralFrame.this.add(popup);
-                    
-                    int myY;
-                    Dimension mScreenDimension = Toolkit.getDefaultToolkit().getScreenSize();
-                    int mHight = popup.getHeight();
-                    if ((e.getYOnScreen()+mHight-5)>mScreenDimension.height)  myY = e.getYOnScreen()-mHight-5;
-                    else myY = e.getYOnScreen();
-                    //Point location = getPopupLocation(e);
-                    popup.setLocation(e.getXOnScreen(), myY);
-                    //popup.setLocation(e.getX(), e.getY());
-                    popup.setInvoker(popup);
-                    //popup.show((Component)GeneralFrame.this, e.getXOnScreen(),myY);
-                    popup.setVisible(true);
-                    //popup.show(null,100 , 100);
-                    //popup.show(null, e.getXOnScreen(), loca);
+                        int myY;
+                        Dimension mScreenDimension = Toolkit.getDefaultToolkit().getScreenSize();
+                        int mHight = popup.getPreferredSize().height;
+                        if ((e.getYOnScreen()+mHight-5)>mScreenDimension.height)  myY = e.getYOnScreen()-mHight-5;
+                        else myY = e.getYOnScreen();
+                        //Point location = getPopupLocation(e);
+                        popup.setLocation(e.getXOnScreen(), myY);
+                        //popup.setLocation(e.getX(), e.getY());
+                        popup.setInvoker(popup);
+                        //popup.show((Component)GeneralFrame.this, e.getXOnScreen(),myY);
+                        popup.setVisible(true);
+                        //popup.show(null,100 , 100);
+                        //popup.show(null, e.getXOnScreen(), loca);
                     }
+                    else if (e.getButton()==MouseEvent.BUTTON1&&e.getClickCount()==2) GeneralFrame.this.setVisible(!GeneralFrame.this.isVisible());
+                        //else if (e.getButton()==MouseEvent.BUTTON1&&e.getClickCount()==1) actionPause.actionPerformed(null);
                 }
 
             });
@@ -360,18 +415,28 @@ public class GeneralFrame extends javax.swing.JFrame {
     private void initComponents() {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
+        WindowsPopup = new javax.swing.JPopupMenu();
         jLabel1 = new javax.swing.JLabel();
         mTimeShutDown = new javax.swing.JSpinner();
         jSlider1 = new javax.swing.JSlider();
         jAction = new javax.swing.JButton();
         jAction1 = new javax.swing.JButton();
+        ButtonPopup = new javax.swing.JButton();
+
+        WindowsPopup.setLabel("WindowsPopup");
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("autoshutdown/Bundle"); // NOI18N
+        setTitle(bundle.getString("AppNAme")); // NOI18N
+
         jLabel1.setText(bundle.getString("JLabelTime")); // NOI18N
 
         mTimeShutDown.setModel(new javax.swing.SpinnerNumberModel(0, 0, 1, 1));
         mTimeShutDown.setToolTipText(bundle.getString("JLabelTime")); // NOI18N
         mTimeShutDown.setName("mTimeShutDown"); // NOI18N
+
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jAction, org.jdesktop.beansbinding.ELProperty.create("${action.enabled}"), mTimeShutDown, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
         mTimeShutDown.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 mTimeShutDownStateChanged(evt);
@@ -382,14 +447,27 @@ public class GeneralFrame extends javax.swing.JFrame {
         jSlider1.setMinimum(1);
         jSlider1.setOrientation(javax.swing.JSlider.VERTICAL);
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, mTimeShutDown, org.jdesktop.beansbinding.ELProperty.create("${value}"), jSlider1, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, mTimeShutDown, org.jdesktop.beansbinding.ELProperty.create("${value}"), jSlider1, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jAction, org.jdesktop.beansbinding.ELProperty.create("${action.enabled}"), jSlider1, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
         bindingGroup.addBinding(binding);
 
-        jAction.setText("Запуск");
+        jAction.setAction(actionStart);
         jAction.setName("jAction"); // NOI18N
 
-        jAction1.setText("Запуск");
+        jAction1.setAction(actionPause);
         jAction1.setName("jAction"); // NOI18N
+
+        ButtonPopup.setText("jButton1");
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jAction, org.jdesktop.beansbinding.ELProperty.create("${action.enabled}"), ButtonPopup, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        ButtonPopup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ButtonPopupActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -398,26 +476,35 @@ public class GeneralFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jAction, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
-                    .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(mTimeShutDown)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jAction1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 182, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(mTimeShutDown)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ButtonPopup, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(8, 8, 8))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jAction1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jAction, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(29, 29, 29)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mTimeShutDown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(mTimeShutDown)
+                    .addComponent(ButtonPopup, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addGap(5, 5, 5)
                 .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jAction)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jAction1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jAction1)
+                .addGap(18, 18, 18))
         );
 
         bindingGroup.bind();
@@ -432,7 +519,13 @@ public class GeneralFrame extends javax.swing.JFrame {
         //int f=3;
         Integer myModel = (Integer)mTimeShutDown.getModel().getValue();
         setCurrentTime(myModel.intValue());
+        actionStart.refreshName();
     }//GEN-LAST:event_mTimeShutDownStateChanged
+
+    private void ButtonPopupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonPopupActionPerformed
+        // TODO add your handling code here:
+        WindowsPopup.show(ButtonPopup,0 ,ButtonPopup.getHeight());
+    }//GEN-LAST:event_ButtonPopupActionPerformed
 
     /**
      * @param args the command line arguments
@@ -470,6 +563,8 @@ public class GeneralFrame extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ButtonPopup;
+    private javax.swing.JPopupMenu WindowsPopup;
     private javax.swing.JButton jAction;
     private javax.swing.JButton jAction1;
     private javax.swing.JLabel jLabel1;
