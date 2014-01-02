@@ -26,10 +26,12 @@ import javax.imageio.ImageIO;
 import static javax.swing.Action.NAME;
 import static javax.swing.Action.SMALL_ICON;
 import javax.swing.ImageIcon;
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JToolTip;
 import javax.swing.SpinnerNumberModel;
 /**
  *
@@ -46,7 +48,7 @@ public class GeneralFrame extends javax.swing.JFrame {
     BufferedImage myOwnImage;
     BufferedImage myPauseImage;
     TrayIcon myTrayIcon;
-    MyAction currentAction;
+    public MyAction currentAction;
     final SystemTray tray;
     JPopupMenu popup;
     SimpleAction myListener;
@@ -54,14 +56,20 @@ public class GeneralFrame extends javax.swing.JFrame {
     ActionStart actionStart;
     ActionPause actionPause;
     SimpleAction simpleAction;
+    ActionOptions actionOptions;
+    
+    boolean simpleChooseInner;  // флаг как делать быстрые кнопки, во вложенном меню или в рабочем
     
     public void setCurrentTime(int mCurrentTime){
-        mTimeShutDown.setValue(mCurrentTime);
+        if (mTimeShutDown!=null) mTimeShutDown.setValue(mCurrentTime);
         //currentTime = mCurrentTime;
-        
+        if (actionStart!=null) actionStart.refreshName();
+        //if (actionPause!=null) actionPause.refreshName();
     }
     public int getCurrentTime(){
-        return (int)mTimeShutDown.getValue();
+        int rez = 0;
+        if (mTimeShutDown!=null) rez = (int)mTimeShutDown.getValue();
+        return rez;
         //return currentTime;
     }
     // блок работы с действиями
@@ -84,6 +92,31 @@ public class GeneralFrame extends javax.swing.JFrame {
         }
        
     }
+
+    public class ActionOptions extends javax.swing.AbstractAction  {
+        /**
+         *
+         * @throws IOException
+         */
+        public ActionOptions() 
+        {
+            super(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("textOption"),null);
+            javax.swing.ImageIcon myIcon = null;
+            try {
+                myIcon = getIconFromImage(ImageIO.read((getClass().getResource("image/image_options.png"))));
+            } catch (IOException ex) {
+                Logger.getLogger(GeneralFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            this.putValue(SMALL_ICON, myIcon);
+        }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            OptionDialog myOptions = new OptionDialog(GeneralFrame.this, true);
+            
+            myOptions.setLocationRelativeTo(GeneralFrame.this);
+            myOptions.setVisible(true);
+        }
+    }
     
     public class ActionExit extends javax.swing.AbstractAction  {
         /**
@@ -105,6 +138,7 @@ public class GeneralFrame extends javax.swing.JFrame {
         public void actionPerformed(ActionEvent e) {
             GeneralFrame.this.setDefaultCloseOperation(EXIT_ON_CLOSE);
             //GeneralFrame.this.tray.remove(myTrayIcon);
+            OptionDialog.setCurrentTime(GeneralFrame.this.getCurrentTime());
             System.exit(0);
         }
     }
@@ -138,7 +172,7 @@ public class GeneralFrame extends javax.swing.JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             GeneralFrame.this.myTimer.StartTimer(GeneralFrame.this.getCurrentTime());
-            actionStart.setEnabled(false);
+            //actionStart.setEnabled(false);
             actionPause.setEnabled(true);
             setIcon_Count(getCurrentTime());
             pausa = false;
@@ -219,11 +253,13 @@ public class GeneralFrame extends javax.swing.JFrame {
         Graphics2D g2d = image.createGraphics();  
         Font font = g2d.getFont();  
         font = font.deriveFont(15.0f); // or any other size  
+        if (count<5) font = font.deriveFont(Font.BOLD); // or any other size  
         g2d.setFont(font);     
         //g2d.setFont(new Font("TimesRoman", Font.PLAIN, 10));
         //Paint myPaint = g2d.getPaint();
         g2d.setColor(Color.BLACK);
-        g2d.drawString(String.valueOf(count),0, 16);  
+        int mHeigt = font.getSize()+(int)((16-font.getSize())/2);
+        g2d.drawString(String.valueOf(count),0, mHeigt);  
         g2d.dispose();  
         myTrayIcon.setImage(image);          
     }
@@ -247,6 +283,7 @@ public class GeneralFrame extends javax.swing.JFrame {
                     {
                         StopTimer();
                         try {
+                            OptionDialog.setCurrentTime(GeneralFrame.this.getCurrentTime());
                             currentAction.Action_Shutdown();
                         } catch (RuntimeException ex) {
                             Logger.getLogger(GeneralFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -256,6 +293,10 @@ public class GeneralFrame extends javax.swing.JFrame {
                     }
                         else  {
                             tecTime --;
+                            if (tecTime==3){
+                                // отобразим подсказку
+                                myTrayIcon.displayMessage("", java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("tooltip"), TrayIcon.MessageType.WARNING); //.setToolTip(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("tooltip"));
+                            }
                             setIcon_Count(tecTime);
                        }
                 }
@@ -288,19 +329,10 @@ public class GeneralFrame extends javax.swing.JFrame {
             return tecTime;
         }
     }
-    /**
-     * Creates new form GeneralFrame
-     */
-    public GeneralFrame() {
-        this.popup = new JPopupMenu(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("AppNAme"));
-        this.tray = SystemTray.getSystemTray();
-        myOwnImage = new BufferedImage(16,16,java.awt.image.BufferedImage.TYPE_INT_RGB);
-        myListener = new SimpleAction();
-        actionExit = new ActionExit();
-        actionPause = new ActionPause();
-        actionStart = new ActionStart();
-        simpleAction = new SimpleAction();
-        initComponents();
+    
+    public void myInitial (){
+        simpleChooseInner = false;
+        actionOptions = new ActionOptions();
         jSlider1.setMinimum(minCount);
         jSlider1.setMaximum(maxCount);
         SpinnerNumberModel myModel = (SpinnerNumberModel)mTimeShutDown.getModel();
@@ -309,7 +341,7 @@ public class GeneralFrame extends javax.swing.JFrame {
         myModel.setStepSize(step);
         //myModel.setValue(10);        
         currentAction = new MyActionFactory().getInstant();
-        setCurrentTime(10);
+        setCurrentTime(OptionDialog.getCurrentTime());
         mTimeShutDown.setModel(myModel);
         if (!SystemTray.isSupported()) {
             JOptionPane.showMessageDialog(this,
@@ -320,13 +352,8 @@ public class GeneralFrame extends javax.swing.JFrame {
         }
         else
         {
-            try {
-                myOwnImage = ImageIO.read(getClass().getResource("image/ownIcon.png"));
                 myTrayIcon = new TrayIcon(myOwnImage);
                 myTrayIcon.setImageAutoSize(true);
-            } catch (IOException ex) {
-                Logger.getLogger(GeneralFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
             myPauseImage = new BufferedImage(16,16,java.awt.image.BufferedImage.TYPE_INT_RGB);
             try {
                 myPauseImage = ImageIO.read(getClass().getResource("image/image_pause.png"));
@@ -366,13 +393,15 @@ public class GeneralFrame extends javax.swing.JFrame {
                 menuItemP.setName(textMenu.toString());
                 menuItem.addActionListener(simpleAction);
                 menuItemP.addActionListener(simpleAction);
-                menu.add(menuItem);
+                if (simpleChooseInner) menu.add(menuItem);
+                else popup.add(menuItem);
                 WindowsPopup.add(menuItemP);// создаем дополнительное всплывающее окно на форме
             }
             //menu.addSeparator();
-            popup.add(menu);            
+            if (simpleChooseInner) popup.add(menu);            
             popup.addSeparator();
-            //popup.addSeparator();
+            popup.add(actionOptions);
+            popup.addSeparator();
 
             popup.add(actionExit);
             /*popup.setVisible(false);
@@ -402,7 +431,28 @@ public class GeneralFrame extends javax.swing.JFrame {
                 }
 
             });
+        }  
+    }
+    
+    /**
+     * Creates new form GeneralFrame
+     */
+    public GeneralFrame() {
+        this.popup = new JPopupMenu(java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("AppNAme"));
+        this.tray = SystemTray.getSystemTray();
+        myOwnImage = new BufferedImage(16,16,java.awt.image.BufferedImage.TYPE_INT_RGB);
+        try {
+            myOwnImage = ImageIO.read(getClass().getResource("image/ownIcon.png"));
+        } catch (IOException ex) {
+            Logger.getLogger(GeneralFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+        myListener = new SimpleAction();
+        actionExit = new ActionExit();
+        actionPause = new ActionPause();
+        actionStart = new ActionStart();
+        simpleAction = new SimpleAction();
+        initComponents();
+        myInitial();
     }
 
     /**
@@ -427,6 +477,7 @@ public class GeneralFrame extends javax.swing.JFrame {
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("autoshutdown/Bundle"); // NOI18N
         setTitle(bundle.getString("AppNAme")); // NOI18N
+        setIconImage(myOwnImage);
 
         jLabel1.setText(bundle.getString("JLabelTime")); // NOI18N
 
@@ -517,9 +568,9 @@ public class GeneralFrame extends javax.swing.JFrame {
         //System.out.println("Событие 6");
         
         //int f=3;
-        Integer myModel = (Integer)mTimeShutDown.getModel().getValue();
-        setCurrentTime(myModel.intValue());
-        actionStart.refreshName();
+        //Integer myModel = (Integer)mTimeShutDown.getModel().getValue();
+        //setCurrentTime(mTimeShutDown);
+        //actionStart.refreshName();
     }//GEN-LAST:event_mTimeShutDownStateChanged
 
     private void ButtonPopupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonPopupActionPerformed

@@ -4,6 +4,7 @@
  */
 package autoshutdown;
 
+import java.io.File;
 import java.io.IOException;
 import javax.swing.JOptionPane;
 
@@ -38,9 +39,41 @@ public class MyActionFactory {
     public  class  MyAction_Windows extends MyAction {
 
         @Override
-        public void Action_SetAutostart(boolean autostart) {
-            
-        }
+    public void Action_SetAutostart(boolean autostart) {
+            // jar file
+            File file = new File(System.getProperty("java.class.path"));
+            String s;
+            try
+            {
+                if(autostart)
+                {
+//                    s = "cmd /C " + "reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v " +
+                    s = "reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v " +
+                    "AutoShutDown" + " /t REG_SZ /d " + "\"" + file + "\""+" /f";
+                }
+                else
+                {
+                    s = "reg delete HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run " +
+                    "/v " + "AutoShutDown" + " /f";
+                }
+                Process myProc = Runtime.getRuntime().exec(s);
+                int rez = myProc.waitFor();// дождемся окончания выполнения
+                //System.out.println(new Integer(rez).toString());
+                //myProc.destroy();
+             }
+            catch (SecurityException ex) {
+                // нет доступа
+                JOptionPane.showMessageDialog(null, java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ErrorAccess"),java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("nameError") , JOptionPane.ERROR_MESSAGE);
+            }
+            catch (IOException ex) {
+                // нет доступа
+                JOptionPane.showMessageDialog(null, java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("ErrorIO"),java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("nameError") , JOptionPane.ERROR_MESSAGE);
+            }
+            catch(Exception ex){
+                JOptionPane.showMessageDialog(null, java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("UnknownError"), java.util.ResourceBundle.getBundle("autoshutdown/Bundle").getString("nameError"), JOptionPane.ERROR_MESSAGE);
+            }
+             
+ }
 
         @Override
         public void Action_Shutdown() throws RuntimeException, IOException {
