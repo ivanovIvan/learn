@@ -16,6 +16,7 @@ public class Node {
     }
     private String Name;
     private boolean activ;
+    private String guid;
 
     /**
      * @return the Name
@@ -43,6 +44,20 @@ public class Node {
      */
     public void setActiv(boolean activ) {
         this.activ = activ;
+    }
+
+    /**
+     * @return the guid
+     */
+    public String getGuid() {
+        return guid;
+    }
+
+    /**
+     * @param guid the guid to set
+     */
+    public void setGuid(String guid) {
+        this.guid = guid;
     }
     
 }
