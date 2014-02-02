@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
  * @author dav
  */
 public class ExangeFileP2P extends javax.swing.JFrame  implements MyGUI {
-    private NetworkToolsFactory.NetworkToolsImpl currentNetworkTools;
+    private NetworkToolsImpl currentNetworkTools;
 
    /**
      *

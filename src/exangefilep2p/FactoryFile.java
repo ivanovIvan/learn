@@ -13,8 +13,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -23,7 +21,6 @@ import java.util.logging.Logger;
 public class FactoryFile {
     private String fileName;
     private boolean isActive;
-    private LinkedBlockingDeque<MyPakage> listOfmessage;
     private Node nodeDestination;
     private Node nodeSource;
     private SeekableByteChannel reader;
@@ -34,6 +31,8 @@ public class FactoryFile {
     private ByteBuffer myBuffer;
     private FileInputStream fis;
     private boolean isSend; // признак того что фабрика для передачи файла
+    private MyInterfaceMessage myMessage;
+    private MyInterfacePakageQueue myPakageQueue;
     // крипто
     private byte[] hashKodeFile;// полный хэш код файла
     MessageDigest md5 ;// 
@@ -41,7 +40,6 @@ public class FactoryFile {
     // добавим очередь исходящую
     
     public void FactoryFile(){
-        listOfmessage = new LinkedBlockingDeque<>();
         setCountPakage(0);
         repeatPakage = new ArrayDeque();
         isStarted = false;
@@ -52,7 +50,8 @@ public class FactoryFile {
             md5.reset();
         } catch (NoSuchAlgorithmException ex) {
             md5 = null;
-            Logger.getLogger(FactoryFile.class.getName()).log(Level.SEVERE, null, ex);
+            myMessage.setMessage(TypeOfMessage.log, java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorWichMD5"));
+            //Logger.getLogger(FactoryFile.class.getName()).log(Level.SEVERE, null, ex);
         }
         hashKodeFile = null;
     }
@@ -68,7 +67,7 @@ public class FactoryFile {
                     fis.close();
                 } catch (IOException ex) {
                     //Logger.getLogger(FactoryFile.class.getName()).log(Level.SEVERE, null, ex);
-                    MyMessaging.getCurrentInstance().setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorCloseFile"), ex);
+                    myMessage.setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorCloseFile"), ex);
                 }
             }
         }
@@ -88,7 +87,7 @@ public class FactoryFile {
             fis = new FileInputStream(path);
             reader = fis.getChannel();
         } catch (FileNotFoundException ex) {
-            MyMessaging.getCurrentInstance().setMessage(MyMessaging.TypeOfMessage.error, java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("FileNotFound"));
+            myMessage.setMessage(TypeOfMessage.error, java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("FileNotFound"));
             isActive = false;
             rez = false;
         }
@@ -96,7 +95,7 @@ public class FactoryFile {
             try {
                 currentFileSize = reader.size();
             } catch (IOException ex) {
-                MyMessaging.getCurrentInstance().setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("getSizeOfFIle"),ex);
+                myMessage.setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("getSizeOfFIle"),ex);
                 isActive = false;
                 rez = false;
 //                Logger.getLogger(FactoryFile.class.getName()).log(Level.SEVERE, null, ex);
@@ -185,7 +184,7 @@ public class FactoryFile {
             reader.position(getCurrentOffsetFile());
         } catch (IOException ex) {
             //Logger.getLogger(FactoryFile.class.getName()).log(Level.SEVERE, null, ex);
-            MyMessaging.getCurrentInstance().setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorSetPositionInCHanel"), ex);
+            myMessage.setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorSetPositionInCHanel"), ex);
         }
     }
     
@@ -206,7 +205,7 @@ public class FactoryFile {
                 bytes = reader.read(myBuffer);
             } catch (IOException ex) {
                 //Logger.getLogger(FactoryFile.class.getName()).log(Level.SEVERE, null, ex);
-                MyMessaging.getCurrentInstance().setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorReadingFile"),ex);
+                myMessage.setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorReadingFile"),ex);
             }
             if (bytes!=-1) {
                 myBuffer.flip();
@@ -235,8 +234,8 @@ public class FactoryFile {
     {
         // три случая: еще не начали отправку, в середине файла, в конце файла
         //long currentOffset = getCurrentOffsetFile();
-        if (listOfmessage == null) {
-            MyMessaging.getCurrentInstance().setMessage(MyMessaging.TypeOfMessage.error, java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorNotInitialized"));
+        if (myPakageQueue == null) {
+            myMessage.setMessage(TypeOfMessage.error, java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorNotInitialized"));
             return;
         }
         MyPakage myPakage = null;
@@ -249,29 +248,38 @@ public class FactoryFile {
         }
           
         if (myPakage!=null) {
-            try {
                 // добавим его в очередь пакетов
-                !listOfmessage.put(myPakage);
+                if (myPakageQueue.putPakage(myPakage)) {
+                //!listOfmessage.put(myPakage);
                 // необходимо учесть когда отправляем повторные пакеты и не включать сюда хэш
-                if (myPakage.getTypeMessage()== MyPakage.TypeMessage.data&&repeatPakage.isEmpty()) {
-                    // проверим не равняется ли нулю менеджер хэша
-                    if (md5 != null) {
-                        // прибавим наши данные
-                        md5.update(myPakage.getData());
-                    }
-                    else
-                    {
-                        MyMessaging.getCurrentInstance().setMessage(MyMessaging.TypeOfMessage.error, java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorInitializingMD5"));
-                    }
-                } 
-                // удаляем пакеты из очереди повтора именно здесь
+                    if (myPakage.getTypeMessage()== MyPakage.TypeMessage.data&&repeatPakage.isEmpty()) {
+                        // проверим не равняется ли нулю менеджер хэша
+                        if (md5 != null) {
+                            // прибавим наши данные
+                            md5.update(myPakage.getData());
+                        }
+                        else
+                        {
+                            myMessage.setMessage(TypeOfMessage.error, java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorInitializingMD5"));
+                        }
+                    } 
+                } else countPakage--; // удаляем пакеты из очереди повтора именно здесь
                 
-            } catch (InterruptedException ex) {
-                //Logger.getLogger(FactoryFile.class.getName()).log(Level.SEVERE, null, ex);
-                // нифига не вставили.. значит уменьшим пакет и выйдем
-                countPakage--;
-            }
-        }
+       }
+    }
+
+    /**
+     * @param myMessage the myMessage to set
+     */
+    public void setMyMessage(MyInterfaceMessage myMessage) {
+        this.myMessage = myMessage;
+    }
+
+    /**
+     * @param myPakageQueue the myPakageQueue to set
+     */
+    public void setMyPakageQueue(MyInterfacePakageQueue myPakageQueue) {
+        this.myPakageQueue = myPakageQueue;
     }
     
 }

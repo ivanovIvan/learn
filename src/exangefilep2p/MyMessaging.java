@@ -8,17 +8,29 @@ package exangefilep2p;
  * Класс служит для различных сообщений, ошибки, предупреждение, лог и т.д.
  * @author dav
  */
-public class MyMessaging {
-    enum TypeOfMessage {error,warning,log,information};
+public class MyMessaging implements MyInterfaceMessage {
+    //enum TypeOfMessage {error,warning,log,information};
     static MyMessaging currentInstance;
     {
         currentInstance = new MyMessaging();
     }
     
+    /**
+     *
+     * @param type
+     * @param message
+     */
+    @Override
     public void setMessage(TypeOfMessage type, String message){
         System.out.println(message);
     }
 
+    /**
+     *
+     * @param message
+     * @param ex
+     */
+    @Override
     public void setMessage(String message, Exception ex){
         //System.out.println(message);
     }
