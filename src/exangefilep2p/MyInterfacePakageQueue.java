@@ -12,5 +12,5 @@ public interface MyInterfacePakageQueue {
 
     public boolean putPakage(MyPakage pakage);
     public MyPakage getPakage();
-            
+    public boolean deletePakageFromQueue(MyPakage pakage);        
 }

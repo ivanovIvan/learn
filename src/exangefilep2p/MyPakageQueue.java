@@ -36,4 +36,14 @@ public class MyPakageQueue implements MyInterfacePakageQueue {
     public static MyInterfacePakageQueue getCurrentInstance(){
         return currentInstance;
     }
+
+    /**
+     *
+     * @param pakage
+     * @return
+     */
+    @Override
+    public boolean deletePakageFromQueue(MyPakage pakage) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

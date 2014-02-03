@@ -33,7 +33,21 @@ public class MyPakage {
     public void setNumberPakage(int numberPakage) {
         this.numberPakage = numberPakage;
     }
-    enum TypeMessage {requestSendFile,acceptRequestSendFile,test,requesNewSocket,responsRequestNewSoket,sendFile,data,endOfFile} 
+
+    /**
+     * @return the fileName
+     */
+    public String getFileName() {
+        return fileName;
+    }
+
+    /**
+     * @param fileName the fileName to set
+     */
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+    enum TypeMessagePakage {requestSendFile,acceptRequestSendFile,test,requesNewSocket,responsRequestNewSoket,sendFile,data,endOfFile} 
 
     private Node nodeDestination;
     private Node nodeSourde;
@@ -41,19 +55,19 @@ public class MyPakage {
     private byte[] data;
     private String hash;
     private String fileName;    //имя файла связанное с пакетом
-    private TypeMessage typeMessage;
+    private TypeMessagePakage typeMessage;
     private int numberPakage; // номер пакета для идентификации
     /**
      * @return the typeMessage
      */
-    public TypeMessage getTypeMessage() {
+    public TypeMessagePakage getTypeMessage() {
         return typeMessage;
     }
 
     /**
      * @param typeMessage the typeMessage to set
      */
-    public void setTypeMessage(TypeMessage typeMessage) {
+    public void setTypeMessage(TypeMessagePakage typeMessage) {
         this.typeMessage = typeMessage;
     }
     
