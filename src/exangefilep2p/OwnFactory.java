@@ -21,9 +21,6 @@ public class OwnFactory {
     public MyInterfaceMessage getMyMessage(){
         return MyMessaging.getCurrentInstance();
     }
-    public MyInterfacePakageQueue getMyPakageQueue(){
-        return MyPakageQueue.getCurrentInstance();
-    }
     public MyInterfaceParameters getMyParameters() {
         return MyParameters.getCurrentInstance();
     }

@@ -11,6 +11,8 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,8 +20,7 @@ import java.util.logging.Logger;
  * пакет для передачи данных
  * @author dav
  */
-public class MyPakage {
-
+public class MyPakage implements Serializable {
     /**
      * @return the numberPakage
      */
@@ -47,6 +48,7 @@ public class MyPakage {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+
     enum TypeMessagePakage {requestSendFile,acceptRequestSendFile,test,requesNewSocket,responsRequestNewSoket,sendFile,data,endOfFile} 
 
     private Node nodeDestination;
@@ -71,11 +73,21 @@ public class MyPakage {
         this.typeMessage = typeMessage;
     }
     
-    public void MyPakage(){
+    private void commonConstrucotr(){
         if (countByteInPakage<=0) countByteInPakage = 1024;
         data = new byte[countByteInPakage];
     }
-
+    
+    public MyPakage(){
+        commonConstrucotr();
+    }
+    public MyPakage(MyPakage pakageSource){
+        commonConstrucotr();
+        nodeDestination = pakageSource.getNodeSourde();
+        nodeSourde      = pakageSource.getNodeDestination();
+        fileName        = pakageSource.getFileName();
+        numberPakage    = 0;
+    }
     /**
      * @return the hash
      */
@@ -180,18 +192,18 @@ public class MyPakage {
         return toByte(this);
     }
     
-    public static MyPakage loadFromByte(byte[] mData){
-        ByteArrayInputStream bis = new ByteArrayInputStream(mData);
-        ObjectInput in = null;
+    public static MyPakage loadFromByte(byte[] mData) throws ClassNotFoundException {
+        
+        //ObjectInput in = null;
         MyPakage o = new MyPakage();
-        try {
-                in = new ObjectInputStream(bis);
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(mData); ObjectInput in = new ObjectInputStream(bis);) {
           o = (MyPakage)in.readObject(); 
-        }  catch (IOException | ClassNotFoundException ex) {
-                Logger.getLogger(MyPakage.class.getName()).log(Level.SEVERE, null, ex);
+        }  catch (IOException ex) {
+                //Logger.getLogger(MyPakage.class.getName()).log(Level.SEVERE, null, ex);
+           MyMessaging.getCurrentInstance().setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorDeserializePakage"), ex);
         }
 
-        finally {
+        /*finally {
           try {
             bis.close();
           } catch (IOException ex) {
@@ -204,9 +216,34 @@ public class MyPakage {
           } catch (IOException ex) {
             // ignore close exception
           }
-        }  
+        }  */
         return o;
     }
-
+    public String getDataAsString() throws UnsupportedEncodingException{
+        return new String(data, "UTF-8");
+    }
     
+    public void setStringAsData(String myData) throws UnsupportedEncodingException {
+        data = myData.getBytes("UTF-8");
+    }
+    
+    public boolean getDataAsBoolean(){
+        boolean rez = false;
+        try {
+            String temp = getDataAsString();
+            rez = temp.equals("true");
+        } catch (UnsupportedEncodingException ex) {
+            MyMessaging.getCurrentInstance().setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorGetStringFromDataPakage"), ex);
+            //Logger.getLogger(MyPakage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return rez;
+    }
+    public void setDataAsBoolean(boolean source){
+        try {
+            setStringAsData(source?"true":"false");
+        } catch (UnsupportedEncodingException ex) {
+            MyMessaging.getCurrentInstance().setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorGetStringFromDataPakage"), ex);
+            //Logger.getLogger(MyPakage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }

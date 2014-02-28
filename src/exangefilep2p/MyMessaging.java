@@ -10,7 +10,7 @@ package exangefilep2p;
  */
 public class MyMessaging implements MyInterfaceMessage {
     //enum TypeOfMessage {error,warning,log,information};
-    static MyMessaging currentInstance;
+    private static MyMessaging currentInstance;
     {
         currentInstance = new MyMessaging();
     }
@@ -22,7 +22,7 @@ public class MyMessaging implements MyInterfaceMessage {
      */
     @Override
     public void setMessage(TypeOfMessage type, String message){
-        System.out.println(message);
+        System.err.println(type.toString()+message);
     }
 
     /**
@@ -32,6 +32,7 @@ public class MyMessaging implements MyInterfaceMessage {
      */
     @Override
     public void setMessage(String message, Exception ex){
+        System.err.println(message+ex.toString());
         //System.out.println(message);
     }
            

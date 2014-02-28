@@ -4,6 +4,8 @@
  */
 package exangefilep2p;
 
+import java.net.InetAddress;
+
 /**
  *
  * @author dav
@@ -14,9 +16,11 @@ public class Node {
     public String toString() {
         return  Name;
     }
-    private String Name;
-    private boolean activ;
-    private String guid;
+    protected String Name;
+    protected boolean activ;
+    protected String guid;
+    private InetAddress myInetAddres;
+    private int portNumber;
 
     /**
      * @return the Name
@@ -58,6 +62,34 @@ public class Node {
      */
     public void setGuid(String guid) {
         this.guid = guid;
+    }
+
+    /**
+     * @return the myAddres
+     */
+    public InetAddress getMyInetAddres() {
+        return myInetAddres;
+    }
+
+    /**
+     * @param myAddres the myAddres to set
+     */
+    public void setMyInetAddres(InetAddress myAddres) {
+        this.myInetAddres = myAddres;
+    }
+
+    /**
+     * @return the portNumber
+     */
+    public int getPortNumber() {
+        return portNumber;
+    }
+
+    /**
+     * @param portNumber the portNumber to set
+     */
+    public void setPortNumber(int portNumber) {
+        this.portNumber = portNumber;
     }
     
 }

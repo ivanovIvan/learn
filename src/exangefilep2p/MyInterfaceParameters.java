@@ -14,5 +14,8 @@ public interface MyInterfaceParameters {
     public int getDelayForPakageQueue();
     public int getCountItemsForPakageQueu();
     public int getBytePerPakage();
-    
+    public String getTempPath();
+    public String getIPServer();
+    public int getPortServer();
+    public int getCountThreadPool(); // omly for data + services 
 }

@@ -8,4 +8,4 @@ package exangefilep2p;
  *
  * @author dav
  */
-public enum TypeOfMessage {error,warning,log,information};
+public enum TypeOfMessage {error,warning,log,information, logError};

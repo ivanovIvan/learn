@@ -10,5 +10,5 @@ package exangefilep2p;
  */
 public interface MyGUI {
     public String saveFile(String nameFile, Node myNode);
-            
+    public void recieveFile(String nameFile);
 }

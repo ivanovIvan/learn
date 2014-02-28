@@ -11,15 +11,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author dav
  */
 public class NetworkToolsImpl {
-    private TreeModel treeModel;
-    private Options options;
-    private CopyOnWriteArrayList<MyGUI> ListenersGUI;
-    private CopyOnWriteArrayList<ProgressDialog> ListenersProgress;
-
+    protected TreeModel treeModel;
+    protected Options options;
+    protected CopyOnWriteArrayList<MyGUI> ListenersGUI;
+    protected CopyOnWriteArrayList<ProgressDialog> ListenersProgress;
+    protected MyInterfaceParameters myParamenters;
+    protected MyInterfaceMessage myMessaging;
+    
     // +++ ГЕТТЕРЫ И СЕТТЕРЫ + КОНСТРУКТОР
     public NetworkToolsImpl() {
         ListenersGUI = new CopyOnWriteArrayList<>();
         ListenersProgress = new CopyOnWriteArrayList<>();
+        myParamenters   = MyParameters.getCurrentInstance();
+        myMessaging     = MyMessaging.getCurrentInstance();
     }
 
     /**
@@ -86,5 +90,33 @@ public class NetworkToolsImpl {
         // посылает файл конкретному узлу
     }
     // --- ОБЩИЕ МЕТОДЫ
+
+    /**
+     * @return the myParamenters
+     */
+    public MyInterfaceParameters getMyParamenters() {
+        return myParamenters;
+    }
+
+    /**
+     * @param myParamenters the myParamenters to set
+     */
+    public void setMyParamenters(MyInterfaceParameters myParamenters) {
+        this.myParamenters = myParamenters;
+    }
+
+    /**
+     * @return the myMessaging
+     */
+    public MyInterfaceMessage getMyMessaging() {
+        return myMessaging;
+    }
+
+    /**
+     * @param myMessaging the myMessaging to set
+     */
+    public void setMyMessaging(MyInterfaceMessage myMessaging) {
+        this.myMessaging = myMessaging;
+    }
     
 }
