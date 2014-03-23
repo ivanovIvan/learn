@@ -9,5 +9,5 @@ package exangefilep2p;
  * @author dav
  */
 public interface MyInterfaceNetworkTools {
-    
+    public void sendDebugPakage();
 }

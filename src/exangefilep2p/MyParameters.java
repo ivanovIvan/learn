@@ -11,7 +11,7 @@ package exangefilep2p;
 public class MyParameters implements MyInterfaceParameters{
     private static MyParameters currentInstace;
     private boolean isServer;
-    {
+    static{
         currentInstace = new MyParameters();
     }
     public static MyParameters getCurrentInstance(){

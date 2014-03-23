@@ -13,6 +13,11 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +30,7 @@ import java.util.logging.Logger;
  */
 
 public class NetworkToolsSocketUDP extends NetworkToolsImpl {
+
     //private Runnable dispetcherMessage;  
     private boolean isServer;
     final static int lenghtPaket = 5000;
@@ -40,9 +46,10 @@ public class NetworkToolsSocketUDP extends NetworkToolsImpl {
         listFactoryFile = new HashSet();
         listOutputFactoryFile = new HashSet();
         myQueueRecive = new MyPakageQueue();
+        myQueueSend   = new MyPakageQueue();
         // implement dispetcher
         isServer = myParamenters.isServer();
-        myExecutor = Executors.newFixedThreadPool(myParamenters.getCountThreadPool()+2);//+2 - services thread
+        myExecutor = Executors.newFixedThreadPool(myParamenters.getCountThreadPool()+4);//+4 - services thread
         Runnable reciverMessage = new Runnable() {
 
             @Override
@@ -59,8 +66,8 @@ public class NetworkToolsSocketUDP extends NetworkToolsImpl {
                     }
                 } else {
                     try {
-                        mySocket = new DatagramSocket(myParamenters.getPortServer(), InetAddress.getByName(myParamenters.getIPServer()));
-                    } catch (SocketException | UnknownHostException ex) {
+                        mySocket = new DatagramSocket();
+                    } catch (SocketException  ex) {
                         myMessaging.setMessage(java.util.ResourceBundle.getBundle("exangefilep2p/Bundle").getString("errorCreateSocet"), ex);
                         return;
                     } 
@@ -134,9 +141,15 @@ public class NetworkToolsSocketUDP extends NetworkToolsImpl {
                         case requestSendFile: {
                             // temp implementation
                             //String localCatalog = "C:\\DebugProgramm\\";
+                            String pathDestinations = getMyGUI().qeustionRecieveFIle(myPakage.getFileName(),myPakage.getNodeSourde() );
                             MyPakage answerPakage = new MyPakage(myPakage);
                             answerPakage.setTypeMessage(MyPakage.TypeMessagePakage.acceptRequestSendFile);
-                            answerPakage.setDataAsBoolean(true);
+                            try {
+                            answerPakage.setStringAsData(pathDestinations);
+                            } catch (UnsupportedEncodingException ex) {
+                            //    Logger.getLogger(NetworkToolsSocketUDP.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            answerPakage.setDataAsBoolean(!pathDestinations.isEmpty());
                             myQueueSend.putPakage(answerPakage);
                             break;
                         }
@@ -144,14 +157,29 @@ public class NetworkToolsSocketUDP extends NetworkToolsImpl {
                             if (myPakage.getDataAsBoolean()) {
                                 // accept send file
                                 // in this is case name file it's full name file
-                                FactoryFile temp = new FactoryFile(myPakage.getFileName());
+                                FactoryFile temp=null;
+                                String destinationsFile;
+                                try {
+                                     destinationsFile = myPakage.getDataAsString();
+                                } catch (UnsupportedEncodingException ex) {
+                                    //    Logger.getLogger(NetworkToolsSocketUDP.class.getName()).log(Level.SEVERE, null, ex);
+                                    destinationsFile = "";
+                                }
+                                temp = new FactoryFile(myPakage.getFileName(), destinationsFile);
                                 listOutputFactoryFile.add(temp);
                                 break;
                             } else {
                                 // reject send file
                             }
                             break;
-                        }    
+                        }
+                        case debugging: {
+                        try {
+                            getMyGUI().reciveDebugging(myPakage.getDataAsString());
+                        } catch (UnsupportedEncodingException ex) {
+                            Logger.getLogger(NetworkToolsSocketUDP.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        }
                     }
                     // delete pakage from queue in all case
                     myQueueRecive.deletePakageFromQueue(myPakage);
@@ -178,6 +206,7 @@ public class NetworkToolsSocketUDP extends NetworkToolsImpl {
                     MyPakage sendPakage = myQueueSend.getPakage();
                     myPaket.setAddress(sendPakage.getNodeDestination().getMyInetAddres());
                     myPaket.setPort(sendPakage.getNodeDestination().getPortNumber());
+                    myPaket.setData(sendPakage.toByte());
                     try {
                         mySocket.send(myPaket);
                     } catch (IOException ex) {
@@ -190,6 +219,54 @@ public class NetworkToolsSocketUDP extends NetworkToolsImpl {
         myExecutor.execute(senderPakage);
         
     }
+
+    @Override
+    public void sendDebugPakage() {
+        //super.sendDebugPakage(); //To change body of generated methods, choose Tools | Templates.
+        MyPakage myPakage = new MyPakage();
+        myPakage.setTypeMessage(MyPakage.TypeMessagePakage.debugging);
+        Node myDestanations = new Node();
+        myDestanations.setActiv(true);
+        try {
+            myDestanations.setMyInetAddres(InetAddress.getByName(myParamenters.getIPServer()));
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(NetworkToolsSocketUDP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        myDestanations.setPortNumber(myParamenters.getPortServer());
+        myPakage.setNodeDestination(myDestanations);
+        try {
+            myPakage.setStringAsData("Test string");
+        } catch (UnsupportedEncodingException ex) {
+            //Logger.getLogger(NetworkToolsSocketUDP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        myQueueSend.putPakage(myPakage);
+    }
+
+    /**
+     * @return the myGUI
+     */
     
+    @Override
+    public void sendFile(String fileName, Node node) {
+        // send file for reciver
+        Exception myEx = null;
+        try {
+        if (Files.exists(Paths.get(fileName), LinkOption.NOFOLLOW_LINKS)) {
+            // its ok, file found. send pakage to destinations
+            MyPakage myPakage = new MyPakage();
+            myPakage.setTypeMessage(MyPakage.TypeMessagePakage.requestSendFile);
+            myPakage.setNodeDestination(node);
+            myPakage.setFileName(fileName);
+            myQueueSend.putPakage(myPakage);
+        } else
+        {
+            myEx = new FileSystemNotFoundException("File not found");
+        }
+        }catch (SecurityException ex){
+            myEx = ex;
+        }
+        if (myEx!=null) getMyGUI().errorAccesToFile(fileName, myEx);
+        
+    }
     
 }

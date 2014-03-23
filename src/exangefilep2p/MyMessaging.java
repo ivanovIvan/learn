@@ -11,7 +11,7 @@ package exangefilep2p;
 public class MyMessaging implements MyInterfaceMessage {
     //enum TypeOfMessage {error,warning,log,information};
     private static MyMessaging currentInstance;
-    {
+    static {
         currentInstance = new MyMessaging();
     }
     

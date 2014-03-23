@@ -14,6 +14,7 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.FileAlreadyExistsException;
@@ -144,7 +145,7 @@ public class FactoryFile {
         return isStarted;
     }
 
-    public FactoryFile(String path)   {
+    public FactoryFile(String path, String destinationsPath)   {
         // this is conctructor only for send data
         boolean rez = true;
         isSend = true;
@@ -178,6 +179,11 @@ public class FactoryFile {
     public FactoryFile(MyPakage myPakage) {
         // конструктор на основании пакет начала передачи файлов
         setFileName(myPakage.getFileName());
+        try {
+            setDestinationsPath(myPakage.getDataAsString());
+        } catch (UnsupportedEncodingException ex) {
+            //Logger.getLogger(FactoryFile.class.getName()).log(Level.SEVERE, null, ex);
+        }
         //tempPath = MyParameters.getCurrentInstance().getTempPath();
         // initializing prevous downloadin if they possible
         correctPakage = new ArrayList<>();
@@ -452,6 +458,13 @@ public class FactoryFile {
             myPakage.setNumberPakage(0);
             if (typeMessage==TypeMessagePakage.endOfFile) {
                 myPakage.setData(hashKodeFile);
+            }else {
+                try {
+                    myPakage.setStringAsData(destinationsPath); // this is destinations folder for reciver
+                } catch (UnsupportedEncodingException ex) {
+                    //Logger.getLogger(FactoryFile.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
             }
         } else {
              if (isRepeating) {

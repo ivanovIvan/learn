@@ -49,7 +49,7 @@ public class MyPakage implements Serializable {
         this.fileName = fileName;
     }
 
-    enum TypeMessagePakage {requestSendFile,acceptRequestSendFile,test,requesNewSocket,responsRequestNewSoket,sendFile,data,endOfFile} 
+    enum TypeMessagePakage {requestSendFile,acceptRequestSendFile,test,requesNewSocket,responsRequestNewSoket,sendFile,data,endOfFile, debugging} 
 
     private Node nodeDestination;
     private Node nodeSourde;
@@ -162,28 +162,13 @@ public class MyPakage implements Serializable {
     
     public static byte[] toByte(Object o) {
         //http://stackoverflow.com/questions/2836646/java-serializable-object-to-byte-array        
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = null;
-        byte[] arrayOfByte = new byte[0];
-        try {
-            out = new ObjectOutputStream(bos);   
+        
+        byte[] arrayOfByte = null;
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); ObjectOutput out = new ObjectOutputStream(bos);   ) {
             out.writeObject(o);
             arrayOfByte = bos.toByteArray();
           } catch (IOException ex) {
-            }
-            finally {
-            try {
-              if (out != null) {
-                out.close();
-              }
-            } catch (IOException ex) {
-              // ignore close exception
-            }
-            try {
-              bos.close();
-            } catch (IOException ex) {
-              // ignore close exception
-            }
+              MyMessaging.getCurrentInstance().setMessage("Error witch serialisations pakage", ex);
           }  
         return arrayOfByte;
     }
@@ -220,6 +205,7 @@ public class MyPakage implements Serializable {
         return o;
     }
     public String getDataAsString() throws UnsupportedEncodingException{
+    
         return new String(data, "UTF-8");
     }
     

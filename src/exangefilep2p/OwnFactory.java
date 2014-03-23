@@ -11,10 +11,11 @@ package exangefilep2p;
 public class OwnFactory {
     private NetworkToolsImpl currentNetworkTools;
     private static OwnFactory currentFactory;
-    {
+    static {
         currentFactory = new OwnFactory();
     }
     public static OwnFactory getCurrentInstace(){
+        //if (currentFactory==null) currentFactory = new OwnFactory();
         return currentFactory;
     }
     

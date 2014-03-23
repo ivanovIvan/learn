@@ -10,17 +10,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author dav
  */
-public class NetworkToolsImpl {
+public class NetworkToolsImpl implements MyInterfaceNetworkTools{
     protected TreeModel treeModel;
     protected Options options;
-    protected CopyOnWriteArrayList<MyGUI> ListenersGUI;
+    private MyGUI myGUI;
     protected CopyOnWriteArrayList<ProgressDialog> ListenersProgress;
     protected MyInterfaceParameters myParamenters;
     protected MyInterfaceMessage myMessaging;
     
     // +++ ГЕТТЕРЫ И СЕТТЕРЫ + КОНСТРУКТОР
     public NetworkToolsImpl() {
-        ListenersGUI = new CopyOnWriteArrayList<>();
+        //ListenersGUI = new CopyOnWriteArrayList<>();
         ListenersProgress = new CopyOnWriteArrayList<>();
         myParamenters   = MyParameters.getCurrentInstance();
         myMessaging     = MyMessaging.getCurrentInstance();
@@ -54,13 +54,6 @@ public class NetworkToolsImpl {
         this.options = options;
     }
 
-    public void addListenerGUI(MyGUI listener) {
-        ListenersGUI.addIfAbsent(listener);
-    }
-
-    public boolean removeListenerGUI(MyGUI listener) {
-        return ListenersGUI.remove(listener);
-    }
 
     public void addListenerProgress(ProgressDialog listener) {
         ListenersProgress.addIfAbsent(listener);
@@ -117,6 +110,28 @@ public class NetworkToolsImpl {
      */
     public void setMyMessaging(MyInterfaceMessage myMessaging) {
         this.myMessaging = myMessaging;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void sendDebugPakage() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     * @return the myGUI
+     */
+    public MyGUI getMyGUI() {
+        return myGUI;
+    }
+
+    /**
+     * @param myGUI the myGUI to set
+     */
+    public void setMyGUI(MyGUI myGUI) {
+        this.myGUI = myGUI;
     }
     
 }

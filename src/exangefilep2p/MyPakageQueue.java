@@ -38,7 +38,8 @@ public class MyPakageQueue implements MyInterfacePakageQueue {
     public MyPakage getPakage() {
         MyPakage rez = null;
         try {
-            rez = listOfmessage.poll(delay, TimeUnit.MILLISECONDS);
+            //rez = listOfmessage.poll(delay, TimeUnit.MILLISECONDS);
+            rez = listOfmessage.take();
         } catch (InterruptedException ex) {
             Logger.getLogger(MyPakageQueue.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -61,6 +62,7 @@ public class MyPakageQueue implements MyInterfacePakageQueue {
      */
     @Override
     public boolean deletePakageFromQueue(MyPakage pakage) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return listOfmessage.remove(pakage);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

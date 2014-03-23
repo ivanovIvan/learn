@@ -4,13 +4,14 @@
  */
 package exangefilep2p;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 
 /**
  *
  * @author dav
  */
-public class Node {
+public class Node implements Serializable {
 
     @Override
     public String toString() {
