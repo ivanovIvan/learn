@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <appender name="file1" class="org.apache.log4j.FileAppender"> 
+            <param name="File" value="${catalina.home}/logs/AssertAllocations.log"/> 
+            <layout class="org.apache.log4j.PatternLayout"> 
+                    <param name="ConversionPattern" value="%-4r %d{dd MMM yyyy HH:mm:ss} [%t] %-5p %c %x - %m%n"/> 
+            </layout> 
+    </appender> 
+
+    <appender name="file2" class="org.apache.log4j.FileAppender"> 
+            <param name="File" value="${catalina.home}/logs/AssertAllocations_warn.log"/> 
+            <layout class="org.apache.log4j.PatternLayout"> 
+                    <param name="ConversionPattern" value="%-4r %d{dd MMM yyyy HH:mm:ss} [%t] %-5p %c %x - %m%n"/> 
+            </layout> 
+
+            <!-- Use LevelMatchFilter to write only ERROR messages to error.log -->
+            <filter class="org.apache.log4j.varia.LevelMatchFilter">
+                    <param name="LevelToMatch" value="warn" />
+                    <param name="AcceptOnMatch" value="true"/>
+            </filter>
+            <filter class="org.apache.log4j.varia.DenyAllFilter" />
+    </appender> 
+    <appender name="file3" class="org.apache.log4j.FileAppender"> 
+            <param name="File" value="${catalina.home}/logs/AssertAllocations_info.log"/> 
+            <layout class="org.apache.log4j.PatternLayout"> 
+                    <param name="ConversionPattern" value="%-4r %d{dd MMM yyyy HH:mm:ss} [%t] %-5p %c %x - %m%n"/> 
+            </layout> 
+
+            <!-- Use LevelMatchFilter to write only ERROR messages to error.log -->
+            <filter class="org.apache.log4j.varia.LevelMatchFilter">
+                    <param name="LevelToMatch" value="info" />
+                    <param name="AcceptOnMatch" value="true"/>
+            </filter>
+            <filter class="org.apache.log4j.varia.DenyAllFilter" />
+    </appender> 
+
+    <root> 
+            <level value="debug"/> 
+            <appender-ref ref="file1" /> 
+            <appender-ref ref="file2" /> 
+            <appender-ref ref="file3" /> 
+    </root> 
+</log4j:configuration>

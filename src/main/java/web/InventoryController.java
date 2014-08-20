@@ -23,6 +23,7 @@ import service.ProductManager;
 @org.springframework.stereotype.Controller
 public class InventoryController  { 
     protected final Log logger = LogFactory.getLog(getClass()); 
+    //protected final Logger logger = Logger.getLogger(getClass());
     @Autowired
     @Qualifier("productManager")
     private ProductManager productManager; 
@@ -32,7 +33,9 @@ public class InventoryController  {
             throws ServletException, IOException { 
         //logger.debug("Returning hello view"); 
         String now = (new java.util.Date()).toString();
-        logger.info("returning hello view with " + now); 
+        //logger.warn("warning my"); 
+        //logger.debug("debugging my"); 
+        //logger.info("i my"); 
         Map<String, Object> myModel = new HashMap<>();
         myModel.put("now", now);
         myModel.put("products", this.productManager.getProducts()); 

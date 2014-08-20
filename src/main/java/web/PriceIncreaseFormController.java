@@ -8,11 +8,13 @@ package web;
 
 import javax.servlet.http.HttpServletRequest; 
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory; 
+import javax.validation.Valid;
+import org.apache.commons.logging.Log; 
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Qualifier; 
 import org.springframework.stereotype.Controller; 
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import service.PriceIncrease;
 import service.PriceIncreaseValidator;
 import service.ProductManager;
@@ -35,23 +37,29 @@ public class PriceIncreaseFormController  {
     private ProductManager productManager; 
     
     @Autowired
+    @Qualifier("priceValidator")
     private PriceIncreaseValidator priceValidator;
     
     @InitBinder
-    @Qualifier("priceValidator")
     private void initBinder(WebDataBinder binder){
         binder.setValidator(priceValidator);
     }
             
     //@RequestMapping(method={RequestMethod.GET})
-    @RequestMapping(value = "/priceincrease", method={RequestMethod.POST})
-    public ModelAndView post(@ModelAttribute("priceIncrease") PriceIncrease priceIncrease,
-      HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping(value = "/priceIncrease.Accept", method={RequestMethod.POST})
+    public String post(@Valid @ModelAttribute("priceIncrease") PriceIncrease priceIncrease,BindingResult result,
+      HttpServletRequest request, HttpServletResponse response,final RedirectAttributes redirectAttributes) {
         int increase = priceIncrease.getPercentage();
+        //ModelAndView mModel = new ModelAndView();
+        if (result.hasErrors()) return "priceincrease";//redirectAttributes.addFlashAttribute("Error", "Ошибка проверки");
+        
+            //return new ModelAndView("priceincrease");
         logger.info("Increasing prices by " + increase + "%."); 
         productManager.increasePrice(increase); 
         logger.info("returning from PriceIncreaseForm view to " + getSuccessView()); 
-        return new ModelAndView(new RedirectView(getSuccessView()));
+        
+        //mModel.setView(new RedirectView(getSuccessView()));
+        return "redirect:"+getSuccessView();
   }
     @RequestMapping(value = "/priceincrease", method={RequestMethod.GET})
     public ModelAndView getPage(HttpServletRequest request, HttpServletResponse response) {

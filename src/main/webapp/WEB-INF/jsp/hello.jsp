@@ -4,6 +4,7 @@
   <body>
     <h1><fmt:message key="heading"/></h1>
     <p><fmt:message key="greeting"/> <c:out value="${model.now}"/></p>
+    <c:out value="${model.Error}"/>
     <h3>Products</h3>
     <c:forEach items="${model.products}" var="prod">
       <c:out value="${prod.description}"/> <i>$<c:out value="${prod.price}"/></i><br><br>
