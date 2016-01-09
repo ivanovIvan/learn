@@ -32,8 +32,8 @@ public class algo {
         //BagTest.Run(new BagOnLinkedList<Integer>(),among,false);
         //QueueTest.Run(new Queue<Integer>(), among, true);
         //StackTest.Run(new Stack<Integer>(), among, false);
-        UF_Test.Run(new UF_QuickFind(1000000),"f:\\_Учеба\\Algo\\Aglo\\TestFile\\UF\\largeUF.txt");
-        
+        //UF_Test.CreateFileTest("d:\\Java_Project\\Lern\\Algo\\Aglo\\TestFile\\UF\\mediumUF.txt");
+        UF_Test.Run(new UF_QuickFind(1000000),"d:\\Java_Project\\Lern\\Algo\\Aglo\\TestFile\\UF\\mediumUF.txt");
     }
     
 }
