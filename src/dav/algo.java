@@ -9,11 +9,14 @@ import MyCollections.BagOnArray;
 import MyCollections.BagOnLinkedList;
 import MyCollections.Queue;
 import MyCollections.Stack;
+import Sort.Sort_Insertion;
+import Sort.Sort_Selection;
 import UF.UF_QuickFind;
 import UF.UF_QuickUnion;
 import UF.UF_WeightedQuickUnion;
 import myTest.BagTest;
 import myTest.QueueTest;
+import myTest.Sort_Test;
 import myTest.StackTest;
 import myTest.UF_Test;
 
@@ -37,10 +40,15 @@ public class algo {
         //UF_Test.CreateFileTest("d:\\Java_Project\\Lern\\Algo\\Aglo\\TestFile\\UF\\largeUF.txt");
         
         //  UNION FIND
-        String filePath = "d:\\Java_Project\\Lern\\Algo\\Aglo\\TestFile\\UF\\largeUF.txt";
+       /* String filePath = "d:\\Java_Project\\Lern\\Algo\\Aglo\\TestFile\\UF\\largeUF.txt";
         UF_Test.Run(new UF_QuickUnion(2000000),filePath);
         UF_Test.Run(new UF_WeightedQuickUnion(2000000),filePath);
-        UF_Test.Run(new UF_QuickFind(2000000),filePath);
+        UF_Test.Run(new UF_QuickFind(2000000),filePath);*/
+       
+       // SORT ARRAY
+       Integer[] testArray = Sort_Test.getTestArray(100000);
+       Sort_Test.Run(Sort_Selection.class,testArray);
+       Sort_Test.Run(Sort_Insertion.class,testArray);
     }
     
 }
