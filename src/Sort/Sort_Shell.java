@@ -13,16 +13,24 @@ import java.util.ArrayList;
  * @author dav
  */
 public class Sort_Shell {
-    public static int[] getIncrementPerion(int n){
+    private static int[] getIncrementPerion(int n){
         // Однако гораздо лучший вариант предложил Р.Седжвик. Его последовательность имеет вид
         ArrayList<Integer> myList = new ArrayList<>();
         Integer curr = 1;
-        int i = 0;
+        double i = 1;
         boolean chet = n%2==0;
-        myList.add(curr);
+        myList.add(1);
         while (curr<n/3){
-            if (chet) 
+            if (chet) curr = ((Double)(9*Math.pow(2, i)-9*Math.pow(2, i/2)+1)).intValue();
+            else curr = ((Double)(8*Math.pow(2, i)-6*Math.pow(2, (i+1)/2)+1)).intValue();
+            myList.add(curr);
         }
+        int[] rez = new int[myList.size()];
+        i = 0;
+        for (Integer item:myList) {
+            rez[i++] = item;
+        }
+        return rez;
     }
     public static void sort(Comparable[] a){
         int j=0;
