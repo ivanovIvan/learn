@@ -20,9 +20,14 @@ public class UF_QuickFind implements UF_API{
             innerArray[i] = i;
         }
     }
+    private void validate(int p) {
+        if (p>=innerArray.length) throw new IndexOutOfBoundsException("Index out of Bounds");
+    }
     
     @Override
     public void union(int p, int q) {
+        validate(p);
+        validate(q);
         if (!connected(p, q)){
             // make connection, q connect to p
             int temp_group = find(p);
@@ -40,6 +45,8 @@ public class UF_QuickFind implements UF_API{
 
     @Override
     public boolean connected(int p, int q) {
+        validate(p);
+        validate(q);
         return find(p)==find(q);
     }
 

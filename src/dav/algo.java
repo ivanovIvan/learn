@@ -10,6 +10,8 @@ import MyCollections.BagOnLinkedList;
 import MyCollections.Queue;
 import MyCollections.Stack;
 import UF.UF_QuickFind;
+import UF.UF_QuickUnion;
+import UF.UF_WeightedQuickUnion;
 import myTest.BagTest;
 import myTest.QueueTest;
 import myTest.StackTest;
@@ -32,8 +34,13 @@ public class algo {
         //BagTest.Run(new BagOnLinkedList<Integer>(),among,false);
         //QueueTest.Run(new Queue<Integer>(), among, true);
         //StackTest.Run(new Stack<Integer>(), among, false);
-        //UF_Test.CreateFileTest("d:\\Java_Project\\Lern\\Algo\\Aglo\\TestFile\\UF\\mediumUF.txt");
-        UF_Test.Run(new UF_QuickFind(1000000),"d:\\Java_Project\\Lern\\Algo\\Aglo\\TestFile\\UF\\mediumUF.txt");
+        //UF_Test.CreateFileTest("d:\\Java_Project\\Lern\\Algo\\Aglo\\TestFile\\UF\\largeUF.txt");
+        
+        //  UNION FIND
+        String filePath = "d:\\Java_Project\\Lern\\Algo\\Aglo\\TestFile\\UF\\largeUF.txt";
+        UF_Test.Run(new UF_QuickUnion(2000000),filePath);
+        UF_Test.Run(new UF_WeightedQuickUnion(2000000),filePath);
+        UF_Test.Run(new UF_QuickFind(2000000),filePath);
     }
     
 }

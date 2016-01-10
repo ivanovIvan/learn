@@ -44,7 +44,7 @@ public class UF_Test {
         int[] inItem;
         int p,q;
         int count = 0;
-        WeightedQuickUnionUF UF_Etalon = new WeightedQuickUnionUF(1000000);
+        WeightedQuickUnionUF UF_Etalon = new WeightedQuickUnionUF(2000000);
         for(String item:myReader){
             inItem = FormatIn.getIntFromString(item);
             if (inItem.length>1){
@@ -52,7 +52,7 @@ public class UF_Test {
                 q = inItem[1];
                 UF_Etalon.union(p, q);
             } else {
-                count = inItem[0];
+                count = inItem[0]*2;
             }
             
         }
@@ -84,6 +84,7 @@ public class UF_Test {
     
     public static void Run(UF_API uf, String fileName){
         // read the file and fill UF structure
+        System.out.println("Test for class"+uf.getClass());
         long start_time = System.currentTimeMillis();
         MyFileReader myReader = new MyFileReader(fileName);
         int[] inItem;
@@ -117,5 +118,6 @@ public class UF_Test {
         long timeToGet = end_time-start_time;
         myReader.myCloseFile();
         System.out.println("Time to connected:"+timeToGet+" milisecond");
+        System.out.println("");
     }        
 }
