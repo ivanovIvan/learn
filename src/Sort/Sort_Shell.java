@@ -26,9 +26,9 @@ public class Sort_Shell {
             myList.add(curr);
         }
         int[] rez = new int[myList.size()];
-        i = 0;
+        curr = 0;
         for (Integer item:myList) {
-            rez[i++] = item;
+            rez[curr++] = item;
         }
         return rez;
     }
