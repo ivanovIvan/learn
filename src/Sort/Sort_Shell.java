@@ -24,6 +24,7 @@ public class Sort_Shell {
             if (chet) curr = ((Double)(9*Math.pow(2, i)-9*Math.pow(2, i/2)+1)).intValue();
             else curr = ((Double)(8*Math.pow(2, i)-6*Math.pow(2, (i+1)/2)+1)).intValue();
             myList.add(curr);
+            i++;
         }
         int[] rez = new int[myList.size()];
         curr = 0;
@@ -32,14 +33,25 @@ public class Sort_Shell {
         }
         return rez;
     }
+    
+    private static void innerSort(Comparable[] a, int step){
+        int k = a.length-1; 
+        int j = 0;
+        while ((k-step)>=0) {
+            //for (int i=k+step;i<a.length;i=i+step) {
+                j=k;
+                while(j>(step-1)){
+                    if (less(a[j],a[j-step])) Example.exch(a, j, j-step);
+                    j = j - step;
+                }
+            //}
+            k--;
+        }
+    }
     public static void sort(Comparable[] a){
-        int j=0;
-        for (int i=0;i<a.length;i++) {
-            j=i;
-            while(j>0&&less(a[j],a[j-1])){
-                Example.exch(a, j, j-1);
-                j--;
-            }
+        int[] arrayStep = getIncrementPerion(a.length);
+        for (int i = arrayStep.length-1; i>=0;i--) {
+            innerSort(a, arrayStep[i]);
         }
     }        
 }
