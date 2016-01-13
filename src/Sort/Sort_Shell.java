@@ -35,17 +35,17 @@ public class Sort_Shell {
     }
     
     private static void innerSort(Comparable[] a, int step){
-        int k = a.length-1; 
-        int j = 0;
-        while ((k-step)>=0) {
-            //for (int i=k+step;i<a.length;i=i+step) {
-                j=k;
-                while(j>(step-1)){
-                    if (less(a[j],a[j-step])) Example.exch(a, j, j-step);
+        int k = 0; 
+        int j;
+        while (k < step) {
+            for (int i=k+step;i<a.length;i=i+step) {
+                j=i;
+                while((j-step)>=0 &&less(a[j],a[j-step])){
+                    Example.exch(a, j, j-step);
                     j = j - step;
                 }
-            //}
-            k--;
+            }
+            k++;
         }
     }
     public static void sort(Comparable[] a){
