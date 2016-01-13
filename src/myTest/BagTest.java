@@ -32,6 +32,6 @@ public class BagTest {
         long size = 0;//getObjectSize(myBag);
         System.out.println("Time to add is:"+timeToAdd+" milisecond");
         System.out.println("Time to get is:"+timeToGet+" milisecond");
-//        System.out.println("Size collection is:"+size);
+//        System.out.println("Size collection is:"+size); //11
     }
 }
