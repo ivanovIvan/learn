@@ -6,6 +6,7 @@
 package dav;
 
 import Sort.Sort_Insertion;
+import Sort.Sort_Merge_ExtendMemory;
 import Sort.Sort_Merge_NoMemory;
 import Sort.Sort_Selection;
 import Sort.Sort_Shell;
@@ -37,13 +38,16 @@ public class algo {
         UF_Test.Run(new UF_QuickFind(2000000),filePath);*/
        
        // SORT ARRAY
-       Integer[] testArray = Sort_Test.getTestArray(4);
-       Sort_Test.Run(Sort_Selection.class,testArray);
+       Integer[] testArray = Sort_Test.getTestArray(10);
+       /*Sort_Test.Run(Sort_Selection.class,testArray);
        Sort_Test.Run(Sort_Insertion.class,testArray);
        Sort_Test.Run(Sort_Shell.class,testArray);
-       Sort_Test.Run(Etalon.Shell.class,testArray);
+       Sort_Test.Run(Etalon.Shell.class,testArray);*/
        //Sort_Merge_NoMemory.sort(testArray);
        Sort_Test.Run(Sort_Merge_NoMemory.class,testArray);
+       //Sort_Test.Run(Sort_Merge_ExtendMemory.class,testArray);
+       //Sort_Merge_ExtendMemory.sort(testArray);
+       //Sort_Test.Run(Etalon.Merge.class,testArray);
        
     }
     
