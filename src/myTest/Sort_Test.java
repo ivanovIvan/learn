@@ -40,7 +40,7 @@ public class Sort_Test {
             return;
         }
 
-        MyStdOut.printLn("Test for "+SortClass+" capacity "+MyStdOut.getFormatNumeric(a.length));
+        MyStdOut.println("Test for "+SortClass+" capacity "+MyStdOut.getFormatNumeric(a.length));
         long start_time = System.currentTimeMillis();
         try {
             Sort.invoke(null,new Object[]{a});
@@ -53,9 +53,9 @@ public class Sort_Test {
         }
 //        SortClass.sort(a);
         long stop_time = System.currentTimeMillis();
-        MyStdOut.printLn("Time to sort "+MyStdOut.getFormatNumeric(stop_time-start_time)+" milisecond ");
-        MyStdOut.printLn((Example.isSorted(a))?"Sorted correctly":"ERROR. Wrong sort resultat");
-        MyStdOut.printLn("");
+        MyStdOut.println("Time to sort "+MyStdOut.getFormatNumeric(stop_time-start_time)+" milisecond ");
+        MyStdOut.println((Example.isSorted(a))?"Sorted correctly":"ERROR. Wrong sort resultat");
+        MyStdOut.println("");
         
     }
 }

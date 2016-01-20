@@ -22,12 +22,12 @@ public class Example {
     { 
         Comparable t = a[i]; 
         a[i] = a[j]; 
-        a[j] = t; 
+        a[j] = t;
     }
     protected static void show(Comparable[] a)
     { // Вывод массива в одной строке,
         for (int i = 0; i < a. length; i++) MyStdOut.print(a[i] + " ");
-        MyStdOut.printLn("");
+        MyStdOut.println("");
     }
 
     public static boolean isSorted(Comparable[] a)
