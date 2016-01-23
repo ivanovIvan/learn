@@ -27,4 +27,13 @@ public class MyStdOut {
         //return String.format(Locale.ROOT, format, args)
         return Long.toString(i);
     }
+    public static void printlnArray(Integer[] arrayForPrint){
+        // {3.14, 2.71, 0, -2.5, 99.123}
+        String stringForPrint = "{";
+        for (Integer item:arrayForPrint){
+            stringForPrint = stringForPrint + item.toString()+",";
+        }
+        stringForPrint = stringForPrint.substring(0, stringForPrint.length()-1)+"}";
+        println(stringForPrint);
+    }
 }
