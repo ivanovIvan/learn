@@ -8,6 +8,7 @@ package Sort;
 /**
  *
  * @author dav
+ *  work wery slowly, not solutions, yet
  */
 public class Sort_Merge_NoMemory extends Example{
     protected static void merge(Comparable[] a, int lo, int hi){
@@ -16,22 +17,35 @@ public class Sort_Merge_NoMemory extends Example{
             merge(a,lo,delimiter);
             merge(a,delimiter+1,hi);
             // then merge both array on one sort array
-            int i = delimiter+1,currPos=lo,j=0;
-            while (currPos<hi){
-                if (currPos<i){
-                    if (less(a[i],a[currPos])) {
-                        exch(a, currPos, i);
-                        j = i+1;
-                        while (j<=hi&&less(a[j], a[i])) {
-                            //exch(a, j, j+1);
-                            j++;
-                        }
-                        if (i<(j-1)) exch(a,i,j-1);
+            int indexCur=lo,indexleft = lo,indexRight=delimiter+1, temp;
+            while (indexCur<indexRight){
+                if (indexleft == indexRight) {
+                    // in this is place we have if right element is ended
+                    while (indexleft>indexCur) {
+                        exch(a,indexleft,indexleft-1);
+                        indexleft--;
                     }
+                    indexCur = indexRight;
                 }else {
-                    currPos = hi;
+                    if (less(a[indexleft],a[indexRight])) {
+                        if ( indexleft != indexCur) {
+                            exch(a, indexCur, indexleft);
+                            temp = indexleft+1;
+                            while (temp<indexRight&&less(a[temp], a[temp-1])) {
+                                exch(a, temp, temp-1);
+                                temp++;
+                            }
+                        }
+                        else indexleft++;
+                        //if (i<(j-1)) exch(a,i,j-1);
+                    } else {
+                        exch(a, indexCur, indexRight);
+                        if (indexCur == indexleft) indexleft = indexRight;
+                        if (indexRight < hi) indexRight++;
+                    }
+                    indexCur++;
+                    
                 }
-                currPos++;
             }
         }
     }
