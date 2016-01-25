@@ -41,17 +41,17 @@ public class algo {
        // SORT ARRAY
        Integer[] testArray = Sort_Test.getTestArray(10000);
        //Integer[] testArray = {314839861,730428587,154200775,634627186,341002217,510434320,257334558,133556827,465631549,708375567} ;
-       if (testArray.length<15) MyStdOut.printlnArray(testArray);
+       if (testArray.length < 15) MyStdOut.printlnArray(testArray);
        /*Sort_Test.Run(Sort_Selection.class,testArray);
        Sort_Test.Run(Sort_Insertion.class,testArray);
        Sort_Test.Run(Sort_Shell.class,testArray);
        Sort_Test.Run(Etalon.Shell.class,testArray);*/
        //Sort_Merge_NoMemory.sort(testArray);
        
-       Sort_Test.Run(Sort_Merge_NoMemory.class,testArray);
-       Sort_Test.Run(Sort_Merge_ExtendMemory.class,testArray);
+       Sort_Test.Run(Sort_Merge_NoMemory.class, testArray);
+       Sort_Test.Run(Sort_Merge_ExtendMemory.class, testArray);
        //Sort_Merge_ExtendMemory.sort(testArray);
-       Sort_Test.Run(Etalon.Merge.class,testArray);
+       Sort_Test.Run(Etalon.Merge.class, testArray);
        
     }
     

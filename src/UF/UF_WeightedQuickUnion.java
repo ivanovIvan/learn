@@ -31,7 +31,7 @@ public class UF_WeightedQuickUnion extends UF_QuickUnion{
         validate(q);
         if (!connected(p, q)) {
             int rootTo, rootWho;
-            if (getWeight(q)<getWeight(p)) {
+            if (getWeight(q)<=getWeight(p)) {
                 rootTo = find(p);
                 rootWho = find(q);
             } else {
@@ -48,6 +48,14 @@ public class UF_WeightedQuickUnion extends UF_QuickUnion{
     
     private int getWeight(int p) {
         return weight[find(p)];
+    }
+
+    @Override
+    public int find(int p) {
+        while (innerArray[p]!=p){
+            p = innerArray[p];
+        }
+        return p; //To change body of generated methods, choose Tools | Templates.
     }
     
 }
